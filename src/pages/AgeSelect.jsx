@@ -1,8 +1,6 @@
 import { useState } from 'react'
-import './App.css'
-import './index.css'
 
-function Fragmant() {
+function AgeSelect() {
   const [count, setCount] = useState(0)
 
   return (
@@ -14,4 +12,4 @@ function Fragmant() {
   )
 }
 
-export default Fragmant
+export default AgeSelect

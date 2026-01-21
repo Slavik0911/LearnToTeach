@@ -1,13 +1,13 @@
 import { Outlet } from "react-router-dom";
 import Header from "./Header";
-
+import Container from "@/components/layout/Container";
 export default function Layout() {
   return (
     <>
       <Header />
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      <Container className="pt-4">
         <Outlet />
-      </main>
+      </Container>
     </>
   );
 }

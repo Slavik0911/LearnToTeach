@@ -3,6 +3,10 @@
 
 @theme {
   --font-sans: "Fredoka", ui-sans-serif, system-ui, sans-serif;
+  --color-navy: #000E54;
+  --color-lightblue: #5E96F1;
+  --color-lavender: #C6D0FF;
+  --color-grey: #988F8F;
 }
 
 body {

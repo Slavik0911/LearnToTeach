@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import LevelBadge from "@/components/ui/general/LevelBadge";
 import { Bookmark } from "@/components/ui/icons/Bookmark";
 
-export default function LessonCard({ level = "Starters", topic, description, id = 1 }) {
+export default function LessonCard({ level = "Starters", topic, description, id }) {
   const bgClass =
     level === "Starters" ? "bg-lavender" : "bg-lightblue";
   return (

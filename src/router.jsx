@@ -11,6 +11,8 @@ import AdminGuard from "@/pages/profiles/AdminGuard";
 import LogIn from "@/pages/profiles/LogIn";
 import AddLesson from "@/pages/AddLesson";
 
+// This component is responsible for defining all the routes in the application and 
+// rendering the appropriate components based on the URL
 export default function Router() {
   return (
     <Routes>

@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import Container from "@/components/layout/Container";
 
+// This component is used for rendering the header of the application, it contains the logo and the navigation links
 export default function Header() {
   return (
     <header className="bg-navy">

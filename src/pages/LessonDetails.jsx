@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+// This page is used for displaying the details of a lesson
 function LessonDetails() {
   const [count, setCount] = useState(0)
 

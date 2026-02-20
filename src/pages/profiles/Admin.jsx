@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
+// This page is only accessible to admins
 export default function Admin() {
   const navigate = useNavigate();
 

@@ -2,10 +2,15 @@ import { NavLink } from "react-router-dom";
 import LevelBadge from "@/components/ui/general/LevelBadge";
 import { Bookmark } from "@/components/ui/icons/Bookmark";
 
+// This component is used for displaying a card with the lesson information
 export default function LessonCard({ level = "Starters", topic, description, id }) {
+
+  // The background color of the card is determined by the level of the lesson, 
+  // it is either lavender for starters or light blue for movers
   const bgClass =
-    level === "Starters" ? "bg-lavender" : "bg-lightblue";
+level === "Starters" ? "bg-lavender" : "bg-lightblue";
   return (
+    // NavLink is used for making the card clickable, it navigates to the lesson details page when clicked
     <NavLink
       to={`/lessons/${id}`}
       className={`block border border-gray-300 rounded-lg p-3 hover:shadow-lg transition flex flex-col min-h-[320px] ${bgClass}`}>

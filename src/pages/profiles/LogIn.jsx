@@ -3,25 +3,32 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
 import { useNavigate } from "react-router-dom";
 
+
+// This page is used for logging in, it checks if the user is an admin and navigates to the appropriate page
 export default function LogIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
   const navigate = useNavigate();
 
+
+  // Handle form submission for logging in
   async function handleSubmit(e) {
     e.preventDefault();
     setErr("");
 
     try {
+      // Sign in with email and password using Firebase Auth
       const cred = await signInWithEmailAndPassword(auth, email, password);
       const userEmail = cred.user.email;
 
+      // Get the list of admin emails from environment variables and check if the user's email is in that list
       const adminEmails = (import.meta.env.VITE_ADMIN_EMAILS || "")
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean);
 
+      // Check if the user's email is in the list of admin emails
       const isAdmin = adminEmails.includes(userEmail);
     
 

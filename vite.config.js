@@ -6,6 +6,8 @@ import path from "path";
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
+    // This configuration is used for resolving the paths of the imports,
+    // it allows us to use absolute imports with the "@" alias instead of relative imports
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },

@@ -3,6 +3,7 @@ import StatGrid from "@/components/ui/stats/StatGrid";
 import LessonCard from "@/components/ui/lesson/LessonCard";
 import LessonGrid from "@/components/ui/lesson/LessonGrid";
 
+// This is the home page, it displays some information about the site and some statistics about the lessons and tests
 function Home() {
   return (
     <div className="space-y-10">

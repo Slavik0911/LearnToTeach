@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 
+// This component is used for displaying a card with a statistic
 export default function StatCard({ title, value, note, route }) {
   return (
     <Link

@@ -6,9 +6,16 @@
   --color-navy: #000E54;
   --color-lightblue: #5E96F1;
   --color-lavender: #C6D0FF;
-  --color-grey: #988F8F;
+  --color-gray: #D9D9D9;
 }
 
 body {
   font-family: var(--font-sans);
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

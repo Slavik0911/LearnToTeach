@@ -1,14 +1,24 @@
+import { db } from "@/firebase";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { useRef, useState } from "react";
 import { Trash2, Plus } from "lucide-react";
 
 // This page is used for adding a new lesson, it`s accessible only to admins
 export default function AddLesson() {
 
+  // State variables for managing images, form inputs, and errors
   const [images, setImages] = useState([]);
   const inputRef = useRef(null);
   const [editIndex, setEditIndex] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
+
+  // State variables for form inputs
+  const [title, setTitle] = useState("");
+  const [topic, setTopic] = useState("");
+  const [description, setDescription] = useState("");
+  const [age, setAge] = useState("");
+  const [level, setLevel] = useState("");
 
   // Handle file selection and update the images state
   function handleFileChange(e) {
@@ -72,10 +82,37 @@ async function uploadToCloudinary(file) {
   return data.secure_url;
 }
 
+// Generate a URL-friendly slug from the lesson title
+function generateSlug(text) {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w-]+/g, "")
+      .replace(/--+/g, "-");
+  }
+
 // Handle the save action, upload all images to Cloudinary and log the URLs
 async function handleSave() {
   try {
-    setError("");
+    const newErrors = {};
+
+    // Validate form inputs and set errors for any missing fields
+    if (!title.trim()) newErrors.title = true;
+    if (!topic.trim()) newErrors.topic = true;
+    if (!description.trim()) newErrors.description = true;
+    if (!age) newErrors.age = true;
+    if (!level) newErrors.level = true;
+    if (images.length === 0) newErrors.images = true;
+
+    // If there are any validation errors, update the errors state and return early
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+ 
+    // Clear any existing errors before starting the save process
+    setErrors({});
 
     // Set the saving state to true to disable the save button and show a loading state
     setIsSaving(true);
@@ -83,11 +120,27 @@ async function handleSave() {
     // Upload all images to Cloudinary and get their URLs
     const urls = await Promise.all(images.map((img) => uploadToCloudinary(img.file)));
 
+    
+  // Generate a slug from the title and save the lesson data to Firestore
+  const slug = generateSlug(title);
+
+  // Save the lesson data to Firestore with the generated slug as the document ID
+  await setDoc(doc(db, "lessons", slug), {
+    title: title.trim(),
+    topic: topic.trim(),
+    description: description.trim(),
+    age,
+    level,
+    images: urls,
+    saved: 0,
+    createdAt: serverTimestamp(),
+  });
+
     // Log the uploaded URLs to the console
     console.log("Uploaded URLs:", urls);
 
   } catch (e) {
-    setError(e.message || "Save failed");
+    setErrors((prev) => ({ ...prev, save: true }));
   } finally {
     // Reset the saving state after the upload process is complete
     setIsSaving(false);
@@ -101,24 +154,84 @@ function deleteFile(index) {
   return (
   <div className="grid grid-cols-2 gap-10">
         <div>
-          <input type="text" placeholder="Title" maxLength={30} className="bg-gray placeholder:text-2xl rounded-2xl p-5 w-full mb-4 text-2xl" />
-          <input type="text" placeholder="#" maxLength={15} className="bg-gray placeholder:text-2xl rounded-2xl p-5 w-full mb-4 text-2xl" />
-          <textarea placeholder="Description" maxLength={600} className="overflow-y-scroll scrollbar-hide bg-gray placeholder:text-2xl text-black rounded-2xl p-5 w-full mb-4 text-xl" rows={12} />
+          <input 
+            value={title} 
+            onChange={(e) => setTitle(e.target.value)} 
+            type="text" placeholder="Title" maxLength={30} 
+            className={`rounded-2xl p-5 w-full mb-4 text-2xl border-2 ${
+              errors.title ? "border-red-500" : "border-transparent"
+            } bg-gray`} />
+            
+          <input 
+            value={topic} 
+            onChange={(e) => setTopic(e.target.value)}
+            type="text" placeholder="#" maxLength={15} 
+            className={`rounded-2xl p-5 w-full mb-4 text-2xl border-2 ${
+              errors.topic ? "border-red-500" : "border-transparent"
+            } bg-gray`} />
+          <textarea 
+            value={description} 
+            onChange={(e) => setDescription(e.target.value)} 
+            placeholder="Description" maxLength={600} 
+            className={`rounded-2xl p-5 w-full mb-4 text-xl border-2 ${
+              errors.description ? "border-red-500" : "border-transparent"
+            } bg-gray`} rows={12} />
         </div>
 
         <div>
           <div className="grid grid-rows-2 gap-4">
-              <div className="grid grid-cols-2 gap-4">
-              <button className="bg-gray text-2xl rounded-2xl p-4 w-full">Children</button>
-              <button className="bg-gray text-2xl rounded-2xl p-4 w-full">Adult</button>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={() => setAge("Children")}
+                className={`text-2xl rounded-2xl p-4 w-full border-2 ${
+                  errors.age && age === "" ? "border-red-500" : "border-transparent"
+                } ${age === "Children" ? "bg-lightblue" : "bg-gray"}`}
+              >
+                Children
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setAge("Adult")}
+                className={`text-2xl rounded-2xl p-4 w-full border-2 ${
+                errors.age && age === "" ? "border-red-500" : "border-transparent"
+              } ${age === "Adult" ? "bg-lightblue" : "bg-gray"}`}
+              >
+                Adult
+              </button>
             </div>
             <div className="grid grid-cols-3 gap-4">
-              <button className="bg-gray text-2xl rounded-2xl p-4 w-full">Starters</button>
-              <button className="bg-gray text-2xl rounded-2xl p-4 w-full">Movers</button>
-              <button className="bg-gray text-2xl rounded-2xl p-4 w-full">Flyers</button>
+              <button
+                type="button"
+                onClick={() => setLevel("Starters")}
+                className={`bg-gray text-2xl rounded-2xl p-4 border-2 w-full ${errors.level && level === "" ? "border-red-500" : "border-transparent"} ${
+                  level === "Starters" ? "bg-lightblue" : "bg-gray"
+                }`}
+              >
+                Starters
+              </button>
+              <button
+                type="button"
+                onClick={() => setLevel("Movers")}
+                className={`bg-gray text-2xl rounded-2xl p-4 border-2 w-full ${errors.level && level === "" ? "border-red-500" : "border-transparent"} ${
+                  level === "Movers" ? "bg-lightblue" : "bg-gray"
+                }`}
+              >
+                Movers
+              </button>
+              <button
+                type="button"
+                onClick={() => setLevel("Flyers")}
+                className={`bg-gray text-2xl rounded-2xl p-4 border-2 w-full ${errors.level && level === "" ? "border-red-500" : "border-transparent"} ${
+                  level === "Flyers" ? "bg-lightblue" : "bg-gray"
+                }`}
+              >
+                Flyers
+              </button>
             </div>
 
-            <div className="grid grid-cols-2 grid-rows-2 gap-4"> 
+            <div className="grid grid-cols-2 grid-rows-2 gap-4 "> 
                 {images.map((img, i) => (
                   <div key={img.url} className="relative h-40 overflow-hidden rounded-xl">
                     <img
@@ -149,7 +262,9 @@ function deleteFile(index) {
                   <button
                     type="button"
                     onClick={openFilePicker}
-                    className="h-40  bg-lightblue text-7xl flex items-center justify-center"
+                    className={`h-40  bg-lightblue text-7xl flex items-center border-2 justify-center ${
+                      errors.images ? "border-red-500" : "border-transparent"
+                    }`}
                   >
                     <Plus size={120} />
                   </button>

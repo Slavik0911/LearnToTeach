@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
 import { Trash2, Plus } from "lucide-react";
-//https://api.cloudinary.com/v1_1/dfoe7fxgu/image/upload
 
 // This page is used for adding a new lesson, it`s accessible only to admins
 export default function AddLesson() {

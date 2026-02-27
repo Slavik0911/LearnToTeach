@@ -3,8 +3,40 @@ import StatGrid from "@/components/ui/stats/StatGrid";
 import LessonCard from "@/components/ui/lesson/LessonCard";
 import LessonGrid from "@/components/ui/lesson/LessonGrid";
 
+import { useEffect, useState } from "react";
+import { db } from "@/firebase";
+import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
+
 // This is the home page, it displays some information about the site and some statistics about the lessons and tests
 function Home() {
+
+  const [lessons, setLessons] = useState([]);
+
+  // The lessons are loaded from the Firestore database, we get the 5 most recent lessons and display them on the home page
+  useEffect(() => {
+    async function loadLessons() {
+      const q = query(
+        collection(db, "lessons"),
+        orderBy("createdAt", "desc"),
+        limit(5)
+      );
+
+      const snap = await getDocs(q);
+
+      // We transform the documents into a normal array of objects, where each object has an id and the data of the document
+      const items = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      // We set the lessons state with the loaded lessons
+      setLessons(items);
+    }
+
+    // We call the loadLessons function when the component is mounted
+    loadLessons();
+  }, []);
+
   return (
     <div className="space-y-10">
       <div className="max-w-[90rem] mx-auto  grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
@@ -24,16 +56,20 @@ function Home() {
           </StatGrid>
         </div>
       </div>
-
-      <div className="max-w-[90rem] mx-auto ">
-        <LessonGrid>
-          <LessonCard id={1} level="Flyers" topic="Fruits and Vegetables" description="In this lesson, students will learn vocabulary related to fruits and vegetables, practice describing their taste, color, and shape, and talk about healthy eating habits. Through interactive games and speaking activities, they will improve their pronunciation and confidence in everyday conversations." />
-          <LessonCard id={2} level="Starters" topic="Animals" description="Students will learn animal names, sounds they make, habitats, and basic facts about different animals. They'll practice describing animals using adjectives and engage in role-play activities to build speaking skills." />
-          <LessonCard id={3} level="Movers" topic="Family Members" description="This lesson focuses on family vocabulary including relatives' names, relationships, and family roles. Students will practice describing family members' characteristics and sharing information about their own families." />
-          <LessonCard id={4} level="Starters" topic="Food Preferences" description="Students will learn to express likes and dislikes about food items. They'll practice asking questions about preferences and sharing opinions on various dishes." />
-          <LessonCard id={5} level="Flyers" topic="Daily Routines" description="In this lesson, students will learn vocabulary related to daily activities and routines. They will practice using present simple tense to describe their own routines and ask about others' routines through interactive speaking exercises." />
-        </LessonGrid>
-      </div>
+    <div className="max-w-[90rem] mx-auto ">
+      <LessonGrid> 
+            {lessons.map((lesson) => (
+              <LessonCard
+                slug={lesson.id}
+                key={lesson.id}
+                level={lesson.level}
+                topic={lesson.title}
+                description={lesson.description}
+                saved={lesson.saved}
+              />
+            ))}
+      </LessonGrid>
+    </div>
     </div>
   )
 }

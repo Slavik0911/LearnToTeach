@@ -1,5 +1,6 @@
 import { Bookmark } from "lucide-react";
 import LevelBadge from "@/components/ui/general/LevelBadge";
+import AgeBadge from "@/components/ui/general/AgeBadge";
 
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -87,20 +88,18 @@ function LessonDetails() {
         </div>
       </div>
 
-      <div className="relative pb-12">
-        <h1 className="text-4xl font-medium">{lesson.title}</h1>
+      <div className="relative pb-12 min-w-0">
+        <h1 className="text-4xl font-medium break-words">{lesson.title}</h1>
 
         <div className="flex flex-wrap items-center gap-3 mt-4">
-          <span className="bg-lightblue px-5 py-2 rounded-xl text-sm font-medium">
-            {lesson.age}
-          </span>
+          <AgeBadge age={lesson.age} />
 
           <LevelBadge level={lesson.level} />
 
           <span className="text-3xl">#{String(lesson.topic).toUpperCase()}</span>
         </div>
 
-        <p className="mt-6 text-xl leading-relaxed">{lesson.description}</p>
+        <p className="mt-6 text-xl break-words leading-relaxed">{lesson.description}</p>
 
         <div className="absolute bottom-0 right-0 flex items-center gap-2">
           <Bookmark className="w-6 h-6 text-navy" />

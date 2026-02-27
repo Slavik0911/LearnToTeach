@@ -63,7 +63,7 @@ function Home() {
                 slug={lesson.id}
                 key={lesson.id}
                 level={lesson.level}
-                topic={lesson.title}
+                title={lesson.title}
                 description={lesson.description}
                 saved={lesson.saved}
               />

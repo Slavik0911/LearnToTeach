@@ -127,7 +127,9 @@ async function handleSave() {
   // Save the lesson data to Firestore with the generated slug as the document ID
   await setDoc(doc(db, "lessons", slug), {
     title: title.trim(),
+    title_lc: title.trim().toLowerCase(),
     topic: topic.trim(),
+    topic_lc: topic.trim().toLowerCase(),
     description: description.trim(),
     age,
     level,

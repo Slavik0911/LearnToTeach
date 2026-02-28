@@ -8,6 +8,9 @@
   --color-lavender: #C6D0FF;
   --color-gray: #D9D9D9;
 }
+* { caret-color: transparent; }
+
+input, textarea, [contenteditable="true"] { caret-color: auto; }
 
 body {
   font-family: var(--font-sans);

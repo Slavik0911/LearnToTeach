@@ -3,6 +3,8 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
 import { useNavigate, Link  } from "react-router-dom";
 
+//TODO: implement forgot password functionality
+//TODO: implement Google log-in
 
 // This page is used for logging in, it checks if the user is an admin and navigates to the appropriate page
 export default function LogIn() {

@@ -17,7 +17,6 @@ export default function Router() {
   return (
     <Routes>
       {/* without Layout */}
-      <Route path="/login" element={<LogIn />} />
       <Route path="/" element={<AgeSelect />} />
       
       {/* with Layout */}
@@ -26,6 +25,7 @@ export default function Router() {
         <Route path="/search" element={<LessonSearch />} />
         <Route path="/lessons/:id" element={<LessonDetails />} />
 
+        <Route path="/login" element={<LogIn />} />
         <Route path="/profile" element={<Profile />} />
 
         {/* protected admin route */}

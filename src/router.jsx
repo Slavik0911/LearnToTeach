@@ -9,6 +9,7 @@ import Profile from "@/pages/profiles/Profile";
 import Admin from "@/pages/profiles/Admin";
 import AdminGuard from "@/pages/profiles/AdminGuard";
 import LogIn from "@/pages/profiles/LogIn";
+import SignUp from "@/pages/profiles/Signup";
 import AddLesson from "@/pages/AddLesson";
 
 // This component is responsible for defining all the routes in the application and 
@@ -25,6 +26,7 @@ export default function Router() {
         <Route path="/search" element={<LessonSearch />} />
         <Route path="/lessons/:id" element={<LessonDetails />} />
 
+        <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<LogIn />} />
         <Route path="/profile" element={<Profile />} />
 

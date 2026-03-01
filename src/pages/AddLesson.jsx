@@ -277,7 +277,7 @@ function deleteFile(index) {
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="bg-navy disabled:opacity-60 text-white rounded-2xl p-4 w-full text-2xl mt-4">
+            className="bg-navy disabled:opacity-60 text-white rounded-2xl p-4 w-full text-2xl mt-4 transition active:scale-[0.99] disabled:opacity-60">
             {isSaving ? "Saving..." : "Save"}
           </button>
         </div>       

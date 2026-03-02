@@ -1,13 +1,24 @@
 import { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-import { auth, db  } from "../../firebase";
 import { useNavigate, Link } from "react-router-dom";
+import { FcGoogle } from "react-icons/fc";
 
-//TODO: implement Google sign-up functionality
+import {
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
 
-// This page is used for signing up, it creates a new user in Firebase Auth and a corresponding document in Firestore, 
-// then navigates to the profile page
+import {
+  doc,
+  setDoc,
+  getDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+
+import { auth, db } from "../../firebase";
+
+// This page is used for signing up. It creates a new user in Firebase Auth and a corresponding document in Firestore,
+// then navigates to the profile page.
 export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,6 +26,7 @@ export default function SignUp() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Handle form submission for signing up
   async function handleSubmit(e) {
     e.preventDefault();
     if (loading) return;
@@ -23,10 +35,10 @@ export default function SignUp() {
     setLoading(true);
 
     try {
-      // Create a new user with email and password using Firebase Auth  
+      // Create a new user with email and password using Firebase Auth
       const cred = await createUserWithEmailAndPassword(auth, email, password);
 
-      // After the user is created, we create a new document in the "users" collection in Firestore 
+     // After the user is created, we create a new document in the "users" collection in Firestore 
       // with the user's email, role, plan and createdAt fields
       await setDoc(doc(db, "users", cred.user.uid), {
         email: (cred.user.email || "").toLowerCase(),
@@ -37,11 +49,47 @@ export default function SignUp() {
 
       // After the user is created and the document is set, we navigate to the profile page
       navigate("/Profile", { replace: true });
-    }  catch (error) {
-        console.log("SIGNUP ERROR:", error);
-        console.log("code:", error.code);
-        console.log("message:", error.message);
-        setErr(error.code || error.message);
+    } catch (error) {
+      console.log("SIGNUP ERROR:", error);
+      setErr(error.code || error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Handle Google log in
+  async function signInWithGoogle() {
+    if (loading) return;
+
+    setErr("");
+    setLoading(true);
+
+    try {
+      // Sign in with Google using Firebase Auth
+      const provider = new GoogleAuthProvider();
+      const cred = await signInWithPopup(auth, provider);
+
+      const uid = cred.user.uid;
+      const userRef = doc(db, "users", uid);
+
+      // Check if profile doc exists
+      const snap = await getDoc(userRef);
+
+      // If not, create it
+      if (!snap.exists()) {
+        await setDoc(userRef, {
+          email: (cred.user.email || "").toLowerCase(),
+          role: "user",
+          plan: "free",
+          createdAt: serverTimestamp(),
+        });
+      }
+
+      // After the user is created and the document is set, we navigate to the profile page
+      navigate("/Profile", { replace: true });
+    } catch (error) {
+      console.log("GOOGLE SIGN-IN ERROR:", error);
+      setErr(error.code || error.message || "google-sign-in-failed");
     } finally {
       setLoading(false);
     }
@@ -88,14 +136,17 @@ export default function SignUp() {
           </div>
 
           <button
-            type="button"
-            className="w-[320px] max-w-full rounded-full border-2 border-gray-700 bg-white py-3 text-xl text-black transition hover:bg-gray-50 active:scale-[0.99]"
-            onClick={() => {
-              // TODO: implement Google sign-in
-            }}
-          >
-            Continue with Google
-          </button>
+              type="button"
+              disabled={loading}
+              onClick={signInWithGoogle}
+              className="w-[320px] max-w-full flex items-center justify-center gap-3 
+                        rounded-full border-2 border-gray-300 bg-white py-3 
+                        text-lg font-medium text-gray-700 
+                        transition hover:bg-gray-50 active:scale-[0.99] disabled:opacity-60"
+            >
+              <span>Continue with Google</span>
+              <FcGoogle size={20} />
+            </button>
 
           <p className="pt-1 text-lg text-gray-800">
             Have account?{" "}

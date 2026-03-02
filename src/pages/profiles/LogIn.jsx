@@ -1,7 +1,21 @@
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase";
 import { useNavigate, Link  } from "react-router-dom";
+import { FcGoogle } from "react-icons/fc";
+import {
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
+
+import {
+  doc,
+  setDoc,
+  getDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+
+import { auth, db } from "../../firebase";
 
 //TODO: implement forgot password functionality
 //TODO: implement Google log-in
@@ -39,6 +53,44 @@ export default function LogIn() {
       navigate(isAdmin ? "/Admin" : "/Profile");
     } catch (error) {
       setErr(error.code);
+    }
+  }
+ 
+  // Handle Google log-in, if the user logs in with Google
+  async function logInWithGoogle() {
+    if (loading) return;
+
+    setErr("");
+    setLoading(true);
+
+    try {
+      // Sign in with Google using Firebase Auth
+      const provider = new GoogleAuthProvider();
+      const cred = await signInWithPopup(auth, provider);
+
+      const uid = cred.user.uid;
+      const userRef = doc(db, "users", uid);
+
+      // Check if profile doc exists
+      const snap = await getDoc(userRef);
+
+      // If not, create it
+      if (!snap.exists()) {
+        await setDoc(userRef, {
+          email: (cred.user.email || "").toLowerCase(),
+          role: "user",
+          plan: "free",
+          createdAt: serverTimestamp(),
+        });
+      }
+
+      // After the user is created and the document is set, we navigate to the profile page
+      navigate("/Profile", { replace: true });
+    } catch (error) {
+      console.log("GOOGLE SIGN-IN ERROR:", error);
+      setErr(error.code || error.message || "google-sign-in-failed");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -96,12 +148,15 @@ export default function LogIn() {
 
           <button
             type="button"
-            className="w-[320px] max-w-full rounded-full border-2 border-gray-700 bg-white py-3 text-xl text-black transition hover:bg-gray-50 active:scale-[0.99]"
-            onClick={() => {
-              // TODO: implement Google sign-in
-            }}
+            disabled={loading}
+            onClick={logInWithGoogle}
+            className="w-[320px] max-w-full flex items-center justify-center gap-3 
+                      rounded-full border-2 border-gray-300 bg-white py-3 
+                      text-lg font-medium text-gray-700 
+                      transition hover:bg-gray-50 active:scale-[0.99] disabled:opacity-60"
           >
-            Continue with Google
+            <span>Continue with Google</span>
+            <FcGoogle size={20} />
           </button>
 
           <p className="pt-1 text-lg text-gray-800">

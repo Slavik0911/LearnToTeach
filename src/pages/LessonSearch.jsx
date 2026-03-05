@@ -129,6 +129,10 @@ function LessonSearch() {
       }
 
 
+
+  const selectBtn ="text-2xl rounded-2xl p-4 w-full transition-colors duration-300";
+  const pickBtn = (isActive) =>
+  `${selectBtn} ${isActive ? "bg-lightblue" : "bg-gray hover:bg-lightblue/70"}`;
   return (
     <>
     <div className="grid grid-cols-2 gap-10">
@@ -145,9 +149,7 @@ function LessonSearch() {
           <button
             type="button"
             onClick={() => setAge((a) => (a === "Children" ? "all" : "Children"))}
-            className={`text-2xl rounded-2xl p-4 w-full ${
-              age === "Children" ? "bg-lightblue" : "bg-gray"
-            }`}
+            className={pickBtn(age === "Children")}
           >
             Children
           </button>
@@ -155,9 +157,7 @@ function LessonSearch() {
           <button
             type="button"
             onClick={() => setAge((a) => (a === "Adult" ? "all" : "Adult"))}
-            className={`text-2xl rounded-2xl p-4 w-full ${
-              age === "Adult" ? "bg-lightblue" : "bg-gray"
-            }`}
+            className={pickBtn(age === "Adult")}
           >
             Adult
           </button>
@@ -167,9 +167,7 @@ function LessonSearch() {
           <button
             type="button"
             onClick={() => setLevel((l) => (l === "Starters" ? "all" : "Starters"))}
-            className={`text-2xl rounded-2xl p-4 w-full ${
-              level === "Starters" ? "bg-lightblue" : "bg-gray"
-            }`}
+            className={pickBtn(level === "Starters")}
           >
             Starters
           </button>
@@ -177,9 +175,7 @@ function LessonSearch() {
           <button
             type="button"
             onClick={() => setLevel((l) => (l === "Movers" ? "all" : "Movers"))}
-            className={`text-2xl rounded-2xl p-4 w-full ${
-              level === "Movers" ? "bg-lightblue" : "bg-gray"
-            }`}
+            className={pickBtn(level === "Movers")}
           >
             Movers
           </button>
@@ -187,9 +183,7 @@ function LessonSearch() {
           <button
             type="button"
             onClick={() => setLevel((l) => (l === "Flyers" ? "all" : "Flyers"))}
-            className={`text-2xl rounded-2xl p-4 w-full ${
-              level === "Flyers" ? "bg-lightblue" : "bg-gray"
-            }`}
+            className={pickBtn(level === "Flyers")}
           >
             Flyers
           </button>

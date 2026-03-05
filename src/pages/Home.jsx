@@ -50,7 +50,9 @@ function Home() {
       </div>
       
         <div className="justify-self-end w-full max-w-md">
-          <StatGrid>
+          <StatGrid
+            cols={2}
+          >
             <StatCard title="Lessons" value="300+" note="unique" route="/lessons" />
             <StatCard title="Tests" value="70+" note="to every topic" route="/tests" />
           </StatGrid>

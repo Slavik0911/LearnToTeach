@@ -2,7 +2,7 @@ import { Settings, LogOut, Trash2, Crown, Pencil } from "lucide-react";
 
 export default function ProfileSidebar({
   name = "Yaroslav Pylypiuk",
-  email = "yaroslavpylypiuk@gmail.com",
+  email = "nataliababiuk@gmail.com",
   onEditProfile,
   onOpenSettings,
   onUpgrade,

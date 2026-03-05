@@ -19,11 +19,11 @@ export default function Router() {
   return (
     <Routes>
       {/* without Layout */}
-      <Route path="/" element={<AgeSelect />} />
+      {/* <Route path="/" element={<AgeSelect />} /> */}
       
       {/* with Layout */}
       <Route element={<Layout />}>
-        <Route path="/home" element={<Home />} />
+        <Route path="/" element={<Home />} />
         <Route path="/search" element={<LessonSearch />} />
         <Route path="/lessons/:id" element={<LessonDetails />} />
 

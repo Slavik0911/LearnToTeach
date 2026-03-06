@@ -4,8 +4,8 @@ import AgeBadge from "@/components/ui/general/AgeBadge";
 
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { db } from "@/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "@/firebase";
+import { doc, getDoc, setDoc, deleteDoc,  updateDoc, increment, serverTimestamp  } from "firebase/firestore";
 
 // This page is used for displaying the details of a lesson
 function LessonDetails() {
@@ -15,7 +15,8 @@ function LessonDetails() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [savedCount, setSavedCount] = useState(0);
   // The lesson is loaded from the Firestore database, we get the lesson with the id from the url and display its details
   useEffect(() => {
     async function loadLesson() {
@@ -30,7 +31,9 @@ function LessonDetails() {
         setNotFound(true);
         setLesson(null);
       } else {
-        setLesson({ id: snap.id, ...snap.data() });
+        const lessonData = { id: snap.id, ...snap.data() };
+        setLesson(lessonData);
+        setSavedCount(lessonData.saved || 0);
         setCurrentIndex(0);
       }
 
@@ -41,6 +44,75 @@ function LessonDetails() {
     // We call the loadLesson function when the component is mounted and when the id from the url changes
     loadLesson();
   }, [id]);
+
+  // We check if the lesson is in the user's favorites, 
+  // we get the favorite document for the lesson and set the isFavorite state accordingly
+  useEffect(() => {
+  async function checkFavorite() {
+    try {
+      const user = auth.currentUser;
+
+      if (!user || !id) {
+        setIsFavorite(false);
+        return;
+      }
+
+      // We check if there is a document in the "favorites" subcollection of the user with the id of the lesson, 
+      // if it exists, it means that the lesson is in the user's favorites
+      const favoriteRef = doc(db, "users", user.uid, "favorites", id);
+      const favoriteSnap = await getDoc(favoriteRef);
+
+      setIsFavorite(favoriteSnap.exists());
+    } catch (e) {
+      console.log("CHECK FAVORITE ERROR:", e);
+    }
+  }
+
+  checkFavorite();
+}, [id]);
+
+// We handle the toggle of the favorite status of the lesson
+  async function toggleFavorite(lessonId) {
+    try {
+      const user = auth.currentUser;
+
+      if (!user) {
+        console.log("User not logged in");
+        return;
+      }
+
+      // We check if the lesson is already in the user's favorites, 
+      // if it is, we remove it from the favorites and decrement the saved count of the lesson,
+      const favoriteRef = doc(db, "users", user.uid, "favorites", lessonId);
+      const lessonRef = doc(db, "lessons", lessonId);
+      const favoriteSnap = await getDoc(favoriteRef);
+
+      if (favoriteSnap.exists()) {
+        await deleteDoc(favoriteRef);
+        await updateDoc(lessonRef, { 
+          saved: increment(-1) 
+        });
+        setIsFavorite(false);
+        setSavedCount((prev) => Math.max(prev - 1, 0));
+        console.log("Removed from favorites");
+      } else {
+          await setDoc(favoriteRef, {
+            lessonId,
+            addedAt: serverTimestamp(),
+          });
+
+          await updateDoc(lessonRef, {
+            saved: increment(1),
+          });
+
+          setIsFavorite(true);
+          setSavedCount((prev) => prev + 1);
+          console.log("Added to favorites");
+        }
+      } catch (e) {
+        console.log("FAVORITE ERROR:", e);
+      }
+}
 
   // If the lesson is loading, we display a loading message, 
   // if the lesson is not found, we display a not found message, otherwise we display the lesson details
@@ -102,8 +174,14 @@ function LessonDetails() {
         <p className="mt-6 text-xl break-words leading-relaxed">{lesson.description}</p>
 
         <div className="absolute bottom-0 right-0 flex items-center gap-2">
-          <Bookmark className="w-6 h-6 text-navy" />
-          <span className="text-xl">{lesson.saved}</span>
+          <button type="button" onClick={() => toggleFavorite(lesson.id)}>
+              <Bookmark
+                className={`w-6 h-6 transition ${
+                  isFavorite ? "fill-navy text-navy" : "text-navy"
+                }`}
+              />
+            </button>
+          <span className="text-xl">{savedCount}</span>
         </div>
       </div>
     </div>

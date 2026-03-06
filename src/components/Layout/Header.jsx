@@ -29,9 +29,9 @@ export default function Header() {
           {/* Logo */}
           <NavLink
             to="/"
-            className="text-white text-3xl leading-tight font-semibold transition-all duration-300 hover:scale-105 hover:opacity-90 active:scale-95"
+            className="text-white text-3xl leading-tight transition-all duration-300 hover:scale-105 hover:opacity-90 active:scale-95"
           >
-            TeachTo<br />Learn
+            LearnTo<br />Teach
           </NavLink>
 
           {/* Navigation */}

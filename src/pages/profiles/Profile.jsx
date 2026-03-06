@@ -4,19 +4,54 @@ import { BarChart } from "lucide-react";
 import { Folder } from "lucide-react";
 import ProfileSidebar from "@/components/ui/profile/ProfileSidebar";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ConfirmModal from "@/components/ui/profile/ConfirmModal";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "@/firebase";
-import { signOut, deleteUser } from "firebase/auth";
-import { doc, deleteDoc } from "firebase/firestore";
+import { signOut, deleteUser, onAuthStateChanged  } from "firebase/auth";
+import { doc, deleteDoc, getDoc  } from "firebase/firestore";
 
 // This page is used for displaying the user's profile
 export default function Profile() {
   const navigate = useNavigate();
-
+  const [loadingProfile, setLoadingProfile] = useState(true);
   const [confirm, setConfirm] = useState(null); 
-  // confirm = null | { type: "signout" } | { type: "delete" }
+  const [profile, setProfile] = useState({
+    name: "",
+    email: "",
+  });
+
+  // Load the user's profile information from Firestore when the component mounts, 
+  // we listen for changes in the authentication state using onAuthStateChanged,
+    useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        try {
+          if (!user) return;
+
+          const snap = await getDoc(doc(db, "users", user.uid));
+          
+          if (snap.exists()) {
+            const data = snap.data();
+
+            setProfile({
+              name: data.name || "User",
+              email: data.email || user.email || "",
+            });
+            setLoadingProfile(false);
+          } else {
+            setProfile({
+              name: user.displayName || "User",
+              email: user.email || "",
+            });
+            setLoadingProfile(false);
+          }
+        } catch (e) {
+          console.log("LOAD PROFILE ERROR:", e);
+        }
+      });
+
+      return () => unsubscribe();
+    }, []);
 
   // Handle sign out, we sign the user out using Firebase Auth and navigate to the login page
   async function doSignOut() {
@@ -50,11 +85,17 @@ export default function Profile() {
     }
   }
 
+  //TODO: load real folders from Firestore
   const folders = [
     { id: "andrew", title: "Andrew", value: 27 },
     { id: "slavik", title: "Slavik", value: 44 },
   ];
 
+  // If the profile is still loading, we display a loading message
+  if (loadingProfile) return <div>Loading...</div>;
+
+  // We use the confirm state to control the display of the confirm modal, 
+  // when the user clicks on sign out or delete, we set the confirm state with the type of action,
   const modalOpen = !!confirm;
   const isDelete = confirm?.type === "delete";
 
@@ -62,8 +103,8 @@ export default function Profile() {
     <>
       <div className="grid grid-cols-[1fr_1.35fr] gap-6">
         <ProfileSidebar
-          name="Yaroslav Pylypiuk"
-          email="yaroslavpylypiuk@gmail.com"
+          name={profile.name}
+          email={profile.email}
           onEditProfile={() => console.log("edit")}
           onOpenSettings={() => console.log("settings")}
           onUpgrade={() => console.log("upgrade")}

@@ -24,6 +24,7 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
+  const [name, setName] = useState("");
   const navigate = useNavigate();
 
   // Handle form submission for signing up
@@ -42,6 +43,7 @@ export default function SignUp() {
       // with the user's email, role, plan and createdAt fields
       await setDoc(doc(db, "users", cred.user.uid), {
         email: (cred.user.email || "").toLowerCase(),
+        name: name.trim(),
         role: "user",
         plan: "free",
         createdAt: serverTimestamp(),
@@ -79,6 +81,7 @@ export default function SignUp() {
       if (!snap.exists()) {
         await setDoc(userRef, {
           email: (cred.user.email || "").toLowerCase(),
+          name: cred.user.displayName || "",
           role: "user",
           plan: "free",
           createdAt: serverTimestamp(),
@@ -117,6 +120,16 @@ export default function SignUp() {
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className="w-[320px] max-w-full rounded-full bg-gray-200 px-6 py-3 text-xl text-black outline-none placeholder:text-gray-600 focus:ring-2 focus:ring-navy/40"
+            required
+          />
+
+          <input
+            type="text"
+            placeholder="Name"
+            autoComplete="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             className="w-[320px] max-w-full rounded-full bg-gray-200 px-6 py-3 text-xl text-black outline-none placeholder:text-gray-600 focus:ring-2 focus:ring-navy/40"
             required
           />

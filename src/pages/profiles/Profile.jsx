@@ -119,7 +119,7 @@ export default function Profile() {
             </h3>
 
             <StatGrid cols={3}>
-              <StatCard title="Favorite" value={27} note="" route="/favorites" />
+              <StatCard title="Saved" value={27} note="" route="/saved-lessons" />
               <StatCard title="Recently watched" value={35} note="" route="/recently-watched" />
               <StatCard title="Downloaded" value="81" note="" route="/downloaded" />
             </StatGrid>

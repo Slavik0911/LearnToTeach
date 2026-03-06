@@ -7,8 +7,6 @@ export default function LessonCard({ level, title, description, saved, slug}) {
 
   // The background color of the card is determined by the level of the lesson, 
   // it is either lavender for starters or light blue for movers
-  const bgClass =
-    level === "Starters" ? "bg-lavender" : "bg-lightblue";
   return (
     // NavLink is used for making the card clickable, it navigates to the lesson details page when clicked
       <NavLink
@@ -18,7 +16,7 @@ export default function LessonCard({ level, title, description, saved, slug}) {
         transition-all duration-200
         flex flex-col
         h-[400px]
-        ${bgClass}`}
+        bg-lightblue`}
       >
         {/* top badges */}
         <div className="flex justify-between items-center mb-3">

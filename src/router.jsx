@@ -12,6 +12,7 @@ import LogIn from "@/pages/profiles/LogIn";
 import SignUp from "@/pages/profiles/Signup";
 import ForgotPassword from "@/pages/profiles/ForgotPassword";
 import AddLesson from "@/pages/AddLesson";
+import SavedLessons from "@/pages/profiles/SavedLessons.jsx";
 
 // This component is responsible for defining all the routes in the application and 
 // rendering the appropriate components based on the URL
@@ -26,6 +27,7 @@ export default function Router() {
         <Route path="/" element={<Home />} />
         <Route path="/search" element={<LessonSearch />} />
         <Route path="/lessons/:id" element={<LessonDetails />} />
+        <Route path="/saved-lessons" element={<SavedLessons />} />
 
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<LogIn />} />

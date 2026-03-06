@@ -98,7 +98,14 @@ function LessonDetails() {
       } else {
           await setDoc(favoriteRef, {
             lessonId,
-            addedAt: serverTimestamp(),
+            title: lesson.title,
+            title_lc: lesson.title.toLowerCase(),
+            topic: lesson.topic,
+            topic_lc: lesson.topic.toLowerCase(),
+            description: lesson.description,
+            age: lesson.age,
+            level: lesson.level,
+            savedAt: serverTimestamp(),
           });
 
           await updateDoc(lessonRef, {

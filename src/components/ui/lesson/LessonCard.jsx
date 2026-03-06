@@ -11,30 +11,37 @@ export default function LessonCard({ level, title, description, saved, slug}) {
     level === "Starters" ? "bg-lavender" : "bg-lightblue";
   return (
     // NavLink is used for making the card clickable, it navigates to the lesson details page when clicked
-    <NavLink
-      to={`/lessons/${slug}`}
-      className={`block border border-gray-300 rounded-lg p-3 
-      transition-all duration-200 
-      hover:-translate-y-1 hover:shadow-lg hover:scale-[1.01]
-      flex flex-col min-h-[320px] h-[390px] ${bgClass}`}
-    >
+      <NavLink
+        to={`/lessons/${slug}`}
+        className={`block rounded-2xl p-5
+        hover:-translate-y-[3px] hover:shadow-xl scale-[1.01]
+        transition-all duration-200
+        flex flex-col
+        h-[400px]
+        ${bgClass}`}
+      >
+        {/* top badges */}
+        <div className="flex justify-between items-center mb-3">
 
-      <h3 className="text-xl font-medium break-words mb-2 text-center">{title}</h3>
-      <p className="flex-1 min-h-0 overflow-hidden break-all">{description}</p>
-      <div className="mt-auto grid grid-cols-2 items-center pt-3">
-        
-        <div className="flex items-center gap-1">
-          <span aria-hidden>
-            <Bookmark className="w-7 h-7"/>
-          </span>
+          <div className="flex items-center gap-2 text-xl">
+            <Bookmark className="w-6 h-6" />
+            <span className="font-medium">{saved}</span>
+          </div>
 
-          <span className="text-2xl">{saved}</span>
-        </div>
-
-        <div className="justify-self-end">
           <LevelBadge level={level} />
+
         </div>
-      </div>
-    </NavLink>
+
+        {/* title */}
+        <h3 className="text-2xl font-semibold leading-snug mb-3 group-hover:opacity-90 break-words">
+          {title}
+        </h3>
+
+        {/* description */}
+        <p className="text-base leading-relaxed opacity-80 break-words flex-1 min-h-0 overflow-hidden break-all">
+          {description}
+        </p>
+
+      </NavLink>
   );
 }

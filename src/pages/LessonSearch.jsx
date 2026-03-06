@@ -130,69 +130,102 @@ function LessonSearch() {
 
 
 
-  const selectBtn ="text-2xl rounded-2xl p-4 w-full transition-colors duration-300";
+  const selectBtn =
+    "text-2xl rounded-2xl p-4 w-full transition-all duration-300 hover:scale-[1.02] active:scale-[0.99]";
+
   const pickBtn = (isActive) =>
-  `${selectBtn} ${isActive ? "bg-lightblue" : "bg-gray hover:bg-lightblue/70"}`;
+    `${selectBtn} ${
+      isActive
+        ? "bg-lightblue shadow-md"
+        : "bg-gray hover:bg-lightblue/70 hover:shadow-md"
+    }`;
+
+  const pageBtn =
+    "rounded-2xl px-3 py-3 text-xl transition-all duration-300 hover:scale-105 hover:shadow-md active:scale-95 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-none";
+
   return (
     <>
-    <div className="grid grid-cols-2 gap-10">
-      <div className="space-y-4">
-        <input
-          type="text"
-          className="bg-gray p-3 rounded-xl text-2xl text-black w-full"
-          placeholder="Fruits and vegetables"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="grid grid-cols-2 gap-10">
+        <div className="space-y-4">
+          <input
+            type="text"
+            className="w-full rounded-2xl bg-gray p-4 text-2xl text-black outline-none transition-all duration-300 hover:bg-lightblue/20 focus:bg-white focus:ring-2 focus:ring-lightblue"
+            placeholder="Fruits and vegetables"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-        <div className="grid grid-cols-2 gap-4">
-          <button
-            type="button"
-            onClick={() => setAge((a) => (a === "Children" ? "all" : "Children"))}
-            className={pickBtn(age === "Children")}
-          >
-            Children
-          </button>
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              type="button"
+              onClick={() => setAge((a) => (a === "Children" ? "all" : "Children"))}
+              className={pickBtn(age === "Children")}
+            >
+              Children
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setAge((a) => (a === "Adult" ? "all" : "Adult"))}
-            className={pickBtn(age === "Adult")}
-          >
-            Adult
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={() => setAge((a) => (a === "Adult" ? "all" : "Adult"))}
+              className={pickBtn(age === "Adult")}
+            >
+              Adult
+            </button>
+          </div>
 
-        <div className="grid grid-cols-3 gap-4">
-          <button
-            type="button"
-            onClick={() => setLevel((l) => (l === "Starters" ? "all" : "Starters"))}
-            className={pickBtn(level === "Starters")}
-          >
-            Starters
-          </button>
+          <div className="grid grid-cols-6 gap-4">
+            <button
+              type="button"
+              onClick={() => setLevel((l) => (l === "A0" ? "all" : "A0"))}
+              className={pickBtn(level === "A0")}
+            >
+              A0
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setLevel((l) => (l === "Movers" ? "all" : "Movers"))}
-            className={pickBtn(level === "Movers")}
-          >
-            Movers
-          </button>
+            <button
+              type="button"
+              onClick={() => setLevel((l) => (l === "A1" ? "all" : "A1"))}
+              className={pickBtn(level === "A1")}
+            >
+              A1
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setLevel((l) => (l === "Flyers" ? "all" : "Flyers"))}
-            className={pickBtn(level === "Flyers")}
-          >
-            Flyers
-          </button>
+            <button
+              type="button"
+              onClick={() => setLevel((l) => (l === "A2" ? "all" : "A2"))}
+              className={pickBtn(level === "A2")}
+            >
+              A2
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setLevel((l) => (l === "B1" ? "all" : "B1"))}
+              className={pickBtn(level === "B1")}
+            >
+              B1
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setLevel((l) => (l === "B2" ? "all" : "B2"))}
+              className={pickBtn(level === "B2")}
+            >
+              B2
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setLevel((l) => (l === "C1" ? "all" : "C1"))}
+              className={pickBtn(level === "C1")}
+            >
+              C1
+            </button>
+          </div>
         </div>
       </div>
 
-      
-    </div>
-    <div className="space-y-8 mt-8">
+      <div className="mt-8 space-y-8">
         <LessonGrid>
           {lessons.map((lesson) => (
             <LessonCard
@@ -211,30 +244,31 @@ function LessonSearch() {
             type="button"
             onClick={() => setPageIndex((p) => Math.max(0, p - 1))}
             disabled={loading || pageIndex === 0}
-            className="bg-gray disabled:opacity-50 rounded-2xl px-3 py-3 text-xl"
+            className={`${pageBtn} bg-gray hover:bg-lightblue/70`}
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="h-5 w-5" />
           </button>
 
-          <span className="text-xl">{pageIndex + 1}</span>
+          <span className="min-w-10 text-center text-xl font-medium transition-opacity duration-300">
+            {pageIndex + 1}
+          </span>
 
           <button
             type="button"
             onClick={() => setPageIndex((p) => p + 1)}
             disabled={loading || !isNext}
-            className="bg-lightblue disabled:opacity-50 rounded-2xl px-3 py-3 text-xl"
+            className={`${pageBtn} bg-lightblue hover:bg-lightblue/80`}
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="h-5 w-5" />
           </button>
         </div>
 
         {loading ? (
-          <div className="text-center text-xl">Loading...</div>
+          <div className="animate-pulse text-center text-xl">Loading...</div>
         ) : null}
       </div>
     </>
-    
   );
 }
 
-export default LessonSearch
+export default LessonSearch;

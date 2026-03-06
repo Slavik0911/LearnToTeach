@@ -53,7 +53,7 @@ function Home() {
           <StatGrid
             cols={2}
           >
-            <StatCard title="Lessons" value="300+" note="unique" route="/lessons" />
+            <StatCard title="Lessons" value="300+" note="unique" route="/search" />
             <StatCard title="Tests" value="70+" note="to every topic" route="/tests" />
           </StatGrid>
         </div>

@@ -152,19 +152,6 @@ function SavedLessons() {
     }
   }
 
-  const selectBtn =
-    "text-2xl rounded-2xl p-4 w-full transition-all duration-300 hover:scale-[1.02] active:scale-[0.99]";
-
-  const pickBtn = (isActive) =>
-    `${selectBtn} ${
-      isActive
-        ? "bg-lightblue shadow-md"
-        : "bg-gray hover:bg-lightblue/70 hover:shadow-md"
-    }`;
-
-  const pageBtn =
-    "rounded-2xl px-3 py-3 text-xl transition-all duration-300 hover:scale-105 hover:shadow-md active:scale-95 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-none";
-
   if (authLoading) {
     return <div className="text-center text-xl">Loading...</div>;
   }

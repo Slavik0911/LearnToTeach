@@ -9,6 +9,8 @@ import {collection,getDocs,query,orderBy,limit,startAfter, where, or, and} from 
 
 import { ChevronRight, ChevronLeft  } from "lucide-react";
 
+//TODO Refactor the search and pagination logic to a custom hook to avoid code duplication with the SavedLessons page
+
 const PAGE_SIZE = 15;
 
 // This page is used for displaying the details of a lesson
@@ -129,7 +131,7 @@ function LessonSearch() {
           setLoading(false);
         }
       }
-      
+
   return (
     <>
       <LessonFilters

@@ -3,6 +3,7 @@ import { Settings, LogOut, Trash2, Crown, Pencil } from "lucide-react";
 export default function ProfileSidebar({
   name = "Yaroslav Pylypiuk",
   email = "nataliababiuk@gmail.com",
+  plan = "free",
   onEditProfile,
   onOpenSettings,
   onUpgrade,
@@ -18,10 +19,12 @@ export default function ProfileSidebar({
             <div className="flex items-center gap-3">
               <h2 className="text-3xl font-semibold truncate">{name}</h2>
 
-              <span className="inline-flex items-center gap-2 rounded-full bg-lightblue px-4 py-1.5 text-base font-semibold">
-                <Crown size={20} />
-                PRO
-              </span>
+              {plan === "pro" && (
+                <span className="inline-flex items-center gap-2 rounded-full bg-lightblue px-4 py-1.5 text-base font-semibold">
+                  <Crown size={20} />
+                  PRO
+                </span>
+              )}
             </div>
 
             <p className="text-lg opacity-70 truncate mt-1">{email}</p>
@@ -41,7 +44,9 @@ export default function ProfileSidebar({
       {/* Actions card */}
       <div className="rounded-2xl bg-gray-100 p-3">
         <ActionRow icon={<Settings size={24} />} label="Settings" onClick={onOpenSettings} />
-        <ActionRow icon={<Crown size={24} />} label="Upgrade to PRO" onClick={onUpgrade} />
+        {plan !== "pro" && (
+          <ActionRow icon={<Crown size={24} />} label="Upgrade to PRO" onClick={onUpgrade} />
+        )}
 
         <div className="my-3 h-px bg-black/10" />
 

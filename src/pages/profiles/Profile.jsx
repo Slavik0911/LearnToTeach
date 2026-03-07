@@ -11,6 +11,8 @@ import { auth, db } from "@/firebase";
 import { signOut, deleteUser, onAuthStateChanged  } from "firebase/auth";
 import { doc, deleteDoc, getDoc  } from "firebase/firestore";
 
+//TODO: If user=admin show this page in the profile sidebar
+
 // This page is used for displaying the user's profile
 export default function Profile() {
   const navigate = useNavigate();
@@ -19,6 +21,7 @@ export default function Profile() {
   const [profile, setProfile] = useState({
     name: "",
     email: "",
+    plan: "",
   });
 
   // Load the user's profile information from Firestore when the component mounts, 
@@ -36,12 +39,14 @@ export default function Profile() {
             setProfile({
               name: data.name || "User",
               email: data.email || user.email || "",
+              plan: data.plan || "free",
             });
             setLoadingProfile(false);
           } else {
             setProfile({
               name: user.displayName || "User",
               email: user.email || "",
+              plan: data.plan || "free",
             });
             setLoadingProfile(false);
           }
@@ -85,7 +90,7 @@ export default function Profile() {
     }
   }
 
-  //TODO: load real folders from Firestore
+  //TODO: Folders
   const folders = [
     { id: "andrew", title: "Andrew", value: 27 },
     { id: "slavik", title: "Slavik", value: 44 },
@@ -105,6 +110,9 @@ export default function Profile() {
         <ProfileSidebar
           name={profile.name}
           email={profile.email}
+          plan={profile.plan}
+
+          //TODO: Change name
           onEditProfile={() => console.log("edit")}
           onOpenSettings={() => console.log("settings")}
           onUpgrade={() => console.log("upgrade")}

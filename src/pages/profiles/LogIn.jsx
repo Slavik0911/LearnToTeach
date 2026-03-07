@@ -17,9 +17,6 @@ import {
 
 import { auth, db } from "../../firebase";
 
-//TODO: implement forgot password functionality
-//TODO: implement Google log-in
-
 // This page is used for logging in, it checks if the user is an admin and navigates to the appropriate page
 export default function LogIn() {
   const [email, setEmail] = useState("");

@@ -2,167 +2,41 @@ import LessonCard from "@/components/ui/lesson/LessonCard";
 import LessonGrid from "@/components/ui/lesson/LessonGrid";
 import LessonFilters from "@/components/ui/lesson/LessonFilters";
 import LessonPagination from "@/components/ui/lesson/LessonPagination";
+import useLessonPaginator from "@/hooks/useLessonPaginator"
+import useAuth from "@/hooks/useAuth"
 
-import { useEffect, useState } from "react";
-import { auth, db } from "@/firebase";
-import { onAuthStateChanged } from "firebase/auth";
-import {
-  collection,
-  getDocs,
-  query,
-  orderBy,
-  limit,
-  startAfter,
-  where,
-  or,
-  and,
-} from "firebase/firestore";
-
-import { ChevronRight, ChevronLeft } from "lucide-react";
-
-const PAGE_SIZE = 15;
+import {useMemo} from 'react'
+import { db } from "@/firebase";
+import { collection } from "firebase/firestore";
 
 // This page is used for displaying the saved lessons of the current user
 function SavedLessons() {
-  const [age, setAge] = useState("all");
-  const [level, setLevel] = useState("all");
-  const [search, setSearch] = useState("");
+  // We get the current user from the useAuth hook,
+  // user = undefined means still loading, null means not logged in
+  const user = useAuth();
+  const uid = user?.uid ?? null;
+  const authLoading = user === undefined;
 
-  const [lessons, setLessons] = useState([]);
-  const [loading, setLoading] = useState(false);
+  // We memoize the collection reference to avoid creating a new object on every render,
+  // which would cause an infinite loop in the useLessonPaginator hook.
+  // The reference is only recreated when uid changes
+  const favoritesRef = useMemo(
+    () => uid ? collection(db, "users", uid, "favorites") : null,
+    [uid]
+  );
 
-  const [uid, setUid] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
+  const {
+    age, setAge,
+    level, setLevel,
+    search, setSearch,
+    lessons,
+    loading,
+    pageIndex, setPageIndex,
+    isNext,
+  } = useLessonPaginator(favoritesRef, "savedAt");
 
-  // Pagination states
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageStarts, setPageStarts] = useState([null]); // start cursor for each page (null = first page)
-  const [isNext, setIsNext] = useState(false);
-
-  // Listen for auth state changes and store the current user's uid
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUid(user.uid);
-      } else {
-        setUid(null);
-      }
-
-      setAuthLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  // Load the lessons for the current page when pageIndex changes
-  useEffect(() => {
-    if (!uid) return;
-    loadPage(pageIndex);
-  }, [pageIndex, uid]);
-
-  // Reset pagination and load the first page when filters change
-  useEffect(() => {
-    if (!uid) return;
-
-    setPageIndex(0);
-    setPageStarts([null]);
-    loadPage(0);
-  }, [search, age, level, uid]);
-
-  // This function loads the saved lessons for the given page index
-  async function loadPage(index) {
-    setLoading(true);
-
-    try {
-      const startCursor = pageStarts[index]; // null for first page
-      const term = search.trim().toLowerCase().replace(/^#/, "");
-
-      // Equality filters for age and level
-      const eqFilters = [];
-      if (age !== "all") eqFilters.push(where("age", "==", age));
-      if (level !== "all") eqFilters.push(where("level", "==", level));
-
-      // Base query without search
-      let base = [
-        collection(db, "users", uid, "favorites"),
-        ...eqFilters,
-        orderBy("savedAt", "desc"),
-        limit(PAGE_SIZE + 1),
-      ];
-
-      // Query with search in title/topic
-      if (term) {
-        base = [
-          collection(db, "users", uid, "favorites"),
-          and(
-            ...eqFilters,
-            or(
-              and(
-                where("title_lc", ">=", term),
-                where("title_lc", "<=", term + "\uf8ff")
-              ),
-              and(
-                where("topic_lc", ">=", term),
-                where("topic_lc", "<=", term + "\uf8ff")
-              )
-            )
-          ),
-          orderBy("savedAt", "desc"),
-          limit(PAGE_SIZE + 1),
-        ];
-      }
-
-      // Add pagination cursor if needed
-      const q = startCursor
-        ? query(...base, startAfter(startCursor))
-        : query(...base);
-
-      const snap = await getDocs(q);
-
-      const docs = snap.docs;
-      const isMore = docs.length > PAGE_SIZE;
-      const pageDocs = isMore ? docs.slice(0, PAGE_SIZE) : docs;
-
-      const items = pageDocs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      setLessons(items);
-      setIsNext(isMore);
-
-      // Save the last document as the next page cursor
-      if (isMore) {
-        const nextStartCursor = pageDocs[pageDocs.length - 1];
-
-        setPageStarts((prev) => {
-          if (prev[index + 1]) return prev;
-
-          const copy = [...prev];
-          copy[index + 1] = nextStartCursor;
-          return copy;
-        });
-      }
-    } catch (e) {
-      console.log("LOAD SAVED LESSONS ERROR:", e);
-      setLessons([]);
-      setIsNext(false);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  if (authLoading) {
-    return <div className="text-center text-xl">Loading...</div>;
-  }
-
-  if (!uid) {
-    return (
-      <div className="text-center text-xl">
-        Please log in to view saved lessons.
-      </div>
-    );
-  }
+  if (authLoading) return <div>Loading...</div>;
+  if (!uid) return <div>Please log in to view saved lessons.</div>;
 
   return (
     <>

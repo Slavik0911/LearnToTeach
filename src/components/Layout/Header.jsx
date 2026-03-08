@@ -1,19 +1,10 @@
 import { NavLink , Link } from "react-router-dom";
 import Container from "@/components/layout/Container";
-import { auth } from "@/firebase";
-import { onAuthStateChanged } from "firebase/auth";
-import { useState, useEffect } from "react";
+import useAuth from "@/hooks/useAuth"
 
 // This component is used for rendering the header of the application, it contains the logo and the navigation links
 export default function Header() {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
+  const user = useAuth()
 
   const navLink =
     "relative transition-all duration-300 hover:opacity-80 hover:scale-[1.04] active:scale-[0.96]";

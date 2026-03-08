@@ -1,21 +1,10 @@
-import { useEffect, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../../firebase";
 import { Navigate } from "react-router-dom";
+import useAuth from "@/hooks/useAuth"
 
 // This component wraps around the admin page and checks if the user is an admin, 
 // if not it redirects them to the profile page or login page if they are not logged in
 export default function AdminGuard({ children }) {
-  const [user, setUser] = useState(undefined);
-
-  // Listen for auth state changes and set the user state accordingly
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-    });
-
-    return () => unsubscribe();
-  }, []);
+  const user = useAuth()
 
   if (user === undefined) return <div>Loading...</div>;
 

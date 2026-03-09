@@ -4,116 +4,175 @@ import { BarChart } from "lucide-react";
 import { Folder } from "lucide-react";
 import ProfileSidebar from "@/components/ui/profile/ProfileSidebar";
 import EditNameModal from "@/components/ui/profile/EditNameModal";
+import CreateFolderModal from "@/components/ui/profile/CreateFolderModal";
+import SelectLessonsModal from "@/components/ui/profile/SelectLessonsModal";
 
 import { useState, useEffect } from "react";
 import ConfirmModal from "@/components/ui/profile/ConfirmModal";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "@/firebase";
 import { signOut, deleteUser, onAuthStateChanged  } from "firebase/auth";
-import { doc, deleteDoc, getDoc , updateDoc  } from "firebase/firestore";
+import { doc, deleteDoc, getDoc, updateDoc, collection, setDoc, getDocs, serverTimestamp } from "firebase/firestore";
 
 
 // This page is used for displaying the user's profile
 export default function Profile() {
-  const navigate = useNavigate();
-  const [loadingProfile, setLoadingProfile] = useState(true);
-  const [confirm, setConfirm] = useState(null); 
-  const [profile, setProfile] = useState({
-    name: "",
-    email: "",
-    plan: "",
-    user: null,
-  });
+    const navigate = useNavigate();
+    const [loadingProfile, setLoadingProfile] = useState(true);
+    const [confirm, setConfirm] = useState(null); 
+    const [createFolder, setCreateFolder] = useState(false);
+    const [isSavingFolder, setIsSavingFolder] = useState(false);
+    const [folders, setFolders] = useState([]);
+    const [selectLessonsOpen, setSelectLessonsOpen] = useState(false);
+    const [newFolderId, setNewFolderId] = useState(null);
+    const [profile, setProfile] = useState({
+      name: "",
+      email: "",
+      plan: "",
+      savedCount: 0,
+      user: null,
+    });
 
-  // Load the user's profile information from Firestore when the component mounts, 
-  // we listen for changes in the authentication state using onAuthStateChanged,
-    useEffect(() => {
-      const unsubscribe = onAuthStateChanged(auth, async (user) => {
-        try {
-          if (!user) return;
+    // Load folders from Firestore
+    async function loadFolders(user) {
+      try {
+        const foldersSnap = await getDocs(collection(db, "users", user.uid, "folders"));
+        
+        const foldersData = foldersSnap.docs.map((folderDoc) => ({
+          id: folderDoc.id,
+          title: folderDoc.data().name,
+          value: folderDoc.data().lessonsCount ?? 0,
+        }));
 
-          const snap = await getDoc(doc(db, "users", user.uid));
-          
-          if (snap.exists()) {
-            const data = snap.data();
-
-            setProfile({
-              name: data.name || "User",
-              email: data.email || user.email || "",
-              plan: "free",
-              user: user,
-            });
-            setLoadingProfile(false);
-          } else {
-            setProfile({
-              name: user.displayName || "User",
-              email: user.email || "",
-              plan: data.plan || "free",
-              user: user,
-            });
-            setLoadingProfile(false);
-          }
-        } catch (e) {
-          console.log("LOAD PROFILE ERROR:", e);
-        }
-      });
-
-      return () => unsubscribe();
-    }, []);
-
-  // Handle sign out, we sign the user out using Firebase Auth and navigate to the login page
-  async function doSignOut() {
-    try {
-      await signOut(auth);
-      navigate("/login", { replace: true });
-    } catch (e) {
-      console.log("SIGN OUT ERROR:", e);
-    }
-  }
-
-  // Handle account deletion, we delete the user's document from Firestore and then delete the user from Firebase Auth, 
-  // if the user needs to re-authenticate, we sign them out and navigate to the login page
-  async function doDeleteAccount() {
-    try {
-      const user = auth.currentUser;
-      if (!user) return;
-
-      await deleteDoc(doc(db, "users", user.uid));
-      await deleteUser(user);
-
-      navigate("/signup", { replace: true });
-    } catch (e) {
-      console.log("DELETE ACCOUNT ERROR:", e);
-      
-      if (e?.code === "auth/requires-recent-login") {
-        await signOut(auth);
-        navigate("/login", { replace: true });
-        return;
+        setFolders(foldersData);
+      } catch (e) {
+        console.log("LOAD FOLDERS ERROR:", e);
       }
     }
-  }
-  const [editName, setEditName] = useState(false);
 
-  // Function to change the user's name
-  async function changeName(newName) {
-    try {
+    // Load the user's profile information from Firestore when the component mounts, 
+    // we listen for changes in the authentication state using onAuthStateChanged,
+      useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+          try {
+            if (!user) return;
+
+            const snap = await getDoc(doc(db, "users", user.uid));
+            
+            if (snap.exists()) {
+              const data = snap.data();
+
+              setProfile({
+                name: data.name || "User",
+                email: data.email || user.email || "",
+                plan: "free",
+                savedCount: data.savedCount || 0,
+                user: user,
+              });
+
+              await loadFolders(user)
+              setLoadingProfile(false);
+            } else {
+              setProfile({
+                name: user.displayName || "User",
+                email: user.email || "",
+                plan: user.plan || "free",
+                savedCount: user.savedCount || 0,
+                user: user,
+              });
+              setLoadingProfile(false);
+            }
+          } catch (e) {
+            console.log("LOAD PROFILE ERROR:", e);
+          }
+        });
+
+        return () => unsubscribe();
+      }, []);
+
+    // Handle sign out, we sign the user out using Firebase Auth and navigate to the login page
+    async function doSignOut() {
+      try {
+        await signOut(auth);
+        navigate("/login", { replace: true });
+      } catch (e) {
+        console.log("SIGN OUT ERROR:", e);
+      }
+    }
+
+    // Handle account deletion, we delete the user's document from Firestore and then delete the user from Firebase Auth, 
+    // if the user needs to re-authenticate, we sign them out and navigate to the login page
+    async function doDeleteAccount() {
+      try {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        await deleteDoc(doc(db, "users", user.uid));
+        await deleteUser(user);
+
+        navigate("/signup", { replace: true });
+      } catch (e) {
+        console.log("DELETE ACCOUNT ERROR:", e);
+        
+        if (e?.code === "auth/requires-recent-login") {
+          await signOut(auth);
+          navigate("/login", { replace: true });
+          return;
+        }
+      }
+    }
+    const [editName, setEditName] = useState(false);
+
+    // Function to change the user's name
+    async function changeName(newName) {
+      try {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        await updateDoc(doc(db, "users", user.uid), { name: newName });
+        setProfile((prev) => ({ ...prev, name: newName }));
+        setEditName(false);
+      } catch (e) {
+        console.log("CHANGE NAME ERROR:", e);
+      }
+    }
+
+    // Create a new folder
+    async function doCreateFolder(name) {
       const user = auth.currentUser;
       if (!user) return;
 
-      await updateDoc(doc(db, "users", user.uid), { name: newName });
-      setProfile((prev) => ({ ...prev, name: newName }));
-      setEditName(false);
-    } catch (e) {
-      console.log("CHANGE NAME ERROR:", e);
-    }
-  }
+      // Check if the user has reached the maximum number of folders (15)
+      if (folders.length >= 15) return;
 
-  //TODO: Folders
-  const folders = [
-    { id: "andrew", title: "Andrew", value: 27 },
-    { id: "slavik", title: "Slavik", value: 44 },
-  ];
+      setIsSavingFolder(true);
+      // Create a new folder in Firestore
+      try {
+        const ref = doc(collection(db, "users", user.uid, "folders"));
+        await setDoc(ref, {
+          name,
+          createdAt: serverTimestamp(),
+          lessonsCount: 0,
+        });
+        // Add the new folder to the folders array
+        setFolders((prev) => [
+          ...prev,
+          {
+            id: ref.id,
+            title: name,
+            value: 0,
+          },
+        ]);
 
+        setCreateFolder(false);
+        setNewFolderId(ref.id);
+        setSelectLessonsOpen(true);
+      } catch (e) {
+        console.log("CREATE FOLDER ERROR:", e);
+      } finally {
+        setIsSavingFolder(false);
+      }
+}
   // If the profile is still loading, we display a loading message
   if (loadingProfile) return <div>Loading...</div>;
 
@@ -136,14 +195,14 @@ export default function Profile() {
           onDelete={() => setConfirm({ type: "delete" })}
         />
 
-        <div className="grid grid-rows-2 gap-6">
+        <div className="flex flex-col gap-6">
           <div className="bg-gray-100 px-10 pb-10 pt-0 rounded-2xl">
             <h3 className="text-3xl mb-6 flex items-center gap-2">
               Overview <BarChart size={30} />
             </h3>
 
             <StatGrid cols={3}>
-              <StatCard title="Saved" value={27} note="" route="/saved-lessons" />
+              <StatCard title="Saved" value={profile.savedCount} note="" route="/saved-lessons" />
               <StatCard title="Recently watched" value={35} note="" route="/recently-watched" />
               <StatCard title="Downloaded" value="81" note="" route="/downloaded" />
             </StatGrid>
@@ -153,7 +212,13 @@ export default function Profile() {
             <h3 className="text-3xl mb-6 flex items-center gap-2">
               Folders <Folder size={35} />
             </h3>
-
+          <CreateFolderModal
+            open={createFolder}
+            onClose={() => setCreateFolder(false)}
+            onConfirm={doCreateFolder}
+            isSaving={isSavingFolder}
+            limitReached={folders.length >= 15}
+          />
             <StatGrid cols={3}>
               {folders.map((f) => (
                 <StatCard
@@ -164,7 +229,7 @@ export default function Profile() {
                   route={`/folders/${f.id}`}
                 />
               ))}
-              <StatCard add note="" route="/folders/new" />
+              <StatCard add onClick={() => setCreateFolder(true)} />
             </StatGrid>
           </div>
         </div>
@@ -194,6 +259,16 @@ export default function Profile() {
         currentName={profile.name}
         onClose={() => setEditName(false)}
         onConfirm={changeName}
+      />
+      <SelectLessonsModal
+        open={selectLessonsOpen}
+        folderId={newFolderId}
+        onClose={() => setSelectLessonsOpen(false)}
+        onAdded={async () => {
+          const user = auth.currentUser;
+          if (!user) return;
+          await loadFolders(user);
+        }}
       />
     </>
   );

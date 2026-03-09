@@ -2,11 +2,22 @@ import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 
 // This component is used for displaying a card with a statistic
-export default function StatCard({ title, value, note, route, add  }) {
+export default function StatCard({ title, value, note, route, add, onClick }) {
   const base =
   "w-full h-48 rounded-2xl bg-blue-400 transition transform hover:-translate-y-1 hover:shadow-md";
 
   if (add) {
+    if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className={`${base} flex items-center justify-center`}
+      >
+        <Plus size={120} className="text-black" />
+      </button>
+    );
+  }
     return (
       <Link
         to={route}

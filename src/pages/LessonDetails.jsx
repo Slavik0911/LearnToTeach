@@ -1,11 +1,12 @@
 import { Bookmark } from "lucide-react";
 import LevelBadge from "@/components/ui/general/LevelBadge";
 import AgeBadge from "@/components/ui/general/AgeBadge";
+import { addLessonToFolder } from "@/lib/addLessonToFolder";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { auth, db } from "@/firebase";
-import { doc, getDoc, setDoc, deleteDoc,  updateDoc, increment, serverTimestamp  } from "firebase/firestore";
+import { doc, getDoc, setDoc, deleteDoc,  updateDoc, increment, serverTimestamp, collection, getDocs } from "firebase/firestore";
 
 // This page is used for displaying the details of a lesson
 function LessonDetails() {
@@ -69,7 +70,7 @@ function LessonDetails() {
   }
 
   checkFavorite();
-}, [id]);
+  }, [id]);
 
 // We handle the toggle of the favorite status of the lesson
   async function toggleFavorite(lessonId) {
@@ -85,13 +86,13 @@ function LessonDetails() {
       // if it is, we remove it from the favorites and decrement the saved count of the lesson,
       const favoriteRef = doc(db, "users", user.uid, "favorites", lessonId);
       const lessonRef = doc(db, "lessons", lessonId);
+      const userRef = doc(db, "users", user.uid);
       const favoriteSnap = await getDoc(favoriteRef);
 
       if (favoriteSnap.exists()) {
         await deleteDoc(favoriteRef);
-        await updateDoc(lessonRef, { 
-          saved: increment(-1) 
-        });
+        await updateDoc(lessonRef, { saved: increment(-1) });
+        await updateDoc(userRef, { savedCount: increment(-1) });
         setIsFavorite(false);
         setSavedCount((prev) => Math.max(prev - 1, 0));
         console.log("Removed from favorites");
@@ -108,9 +109,8 @@ function LessonDetails() {
             savedAt: serverTimestamp(),
           });
 
-          await updateDoc(lessonRef, {
-            saved: increment(1),
-          });
+          await updateDoc(lessonRef, { saved: increment(1) });
+          await updateDoc(userRef, { savedCount: increment(1) });
 
           setIsFavorite(true);
           setSavedCount((prev) => prev + 1);

@@ -3,15 +3,15 @@ import StatGrid from "@/components/ui/stats/StatGrid";
 import { BarChart } from "lucide-react";
 import { Folder } from "lucide-react";
 import ProfileSidebar from "@/components/ui/profile/ProfileSidebar";
+import EditNameModal from "@/components/ui/profile/EditNameModal";
 
 import { useState, useEffect } from "react";
 import ConfirmModal from "@/components/ui/profile/ConfirmModal";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "@/firebase";
 import { signOut, deleteUser, onAuthStateChanged  } from "firebase/auth";
-import { doc, deleteDoc, getDoc  } from "firebase/firestore";
+import { doc, deleteDoc, getDoc , updateDoc  } from "firebase/firestore";
 
-//TODO: If user=admin show this page in the profile sidebar
 
 // This page is used for displaying the user's profile
 export default function Profile() {
@@ -22,6 +22,7 @@ export default function Profile() {
     name: "",
     email: "",
     plan: "",
+    user: null,
   });
 
   // Load the user's profile information from Firestore when the component mounts, 
@@ -39,7 +40,8 @@ export default function Profile() {
             setProfile({
               name: data.name || "User",
               email: data.email || user.email || "",
-              plan: data.plan || "free",
+              plan: "free",
+              user: user,
             });
             setLoadingProfile(false);
           } else {
@@ -47,6 +49,7 @@ export default function Profile() {
               name: user.displayName || "User",
               email: user.email || "",
               plan: data.plan || "free",
+              user: user,
             });
             setLoadingProfile(false);
           }
@@ -89,6 +92,21 @@ export default function Profile() {
       }
     }
   }
+  const [editName, setEditName] = useState(false);
+
+  // Function to change the user's name
+  async function changeName(newName) {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      await updateDoc(doc(db, "users", user.uid), { name: newName });
+      setProfile((prev) => ({ ...prev, name: newName }));
+      setEditName(false);
+    } catch (e) {
+      console.log("CHANGE NAME ERROR:", e);
+    }
+  }
 
   //TODO: Folders
   const folders = [
@@ -103,7 +121,6 @@ export default function Profile() {
   // when the user clicks on sign out or delete, we set the confirm state with the type of action,
   const modalOpen = !!confirm;
   const isDelete = confirm?.type === "delete";
-
   return (
     <>
       <div className="grid grid-cols-[1fr_1.35fr] gap-6">
@@ -111,9 +128,8 @@ export default function Profile() {
           name={profile.name}
           email={profile.email}
           plan={profile.plan}
-
-          //TODO: Change name
-          onEditProfile={() => console.log("edit")}
+          user={profile.user}
+          onEditProfile={() => setEditName(true)}
           onOpenSettings={() => console.log("settings")}
           onUpgrade={() => console.log("upgrade")}
           onSignOut={() => setConfirm({ type: "signout" })}
@@ -172,6 +188,12 @@ export default function Profile() {
           if (type === "delete") await doDeleteAccount();
           if (type === "signout") await doSignOut();
         }}
+      />
+      <EditNameModal
+        open={editName}
+        currentName={profile.name}
+        onClose={() => setEditName(false)}
+        onConfirm={changeName}
       />
     </>
   );

@@ -1,4 +1,6 @@
-import { Settings, LogOut, Trash2, Crown, Pencil } from "lucide-react";
+import { Settings, LogOut, Trash2, Crown, Pencil, Shield } from "lucide-react";
+import isAdmin from "@/utils/isAdmin";
+import { useNavigate } from "react-router-dom";
 
 export default function ProfileSidebar({
   name = "Yaroslav Pylypiuk",
@@ -9,7 +11,9 @@ export default function ProfileSidebar({
   onUpgrade,
   onSignOut,
   onDelete,
+  user,
 }) {
+  const navigate = useNavigate();
   return (
     <div className="space-y-8">
       {/* Profile card */}
@@ -46,6 +50,10 @@ export default function ProfileSidebar({
         <ActionRow icon={<Settings size={24} />} label="Settings" onClick={onOpenSettings} />
         {plan !== "pro" && (
           <ActionRow icon={<Crown size={24} />} label="Upgrade to PRO" onClick={onUpgrade} />
+        )}
+        
+        {isAdmin(user) && (
+          <ActionRow icon={<Shield size={24} />} label="Admin" onClick={() => navigate("/admin")} />
         )}
 
         <div className="my-3 h-px bg-black/10" />

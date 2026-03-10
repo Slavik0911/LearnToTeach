@@ -8,7 +8,8 @@ import {
   modalBtn,
   modalBtnPrimary,
   modalBtnSecondary,
-} from "@/components/ui/profile/modalStyles";
+  modalInputBase,
+} from "@/components/ui/styles/formStyles";;
 
 export default function EditNameModal({
   open,
@@ -45,7 +46,7 @@ export default function EditNameModal({
           value={name}
           onChange={(e) => setName(e.target.value)}
           maxLength={30}
-          className="mt-6 w-full rounded-2xl bg-gray px-5 py-3 text-xl outline-none focus:ring-2 focus:ring-navy/30"
+          className={modalInputBase}
         />
 
         <div className={modalActions}>

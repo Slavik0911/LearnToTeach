@@ -68,23 +68,23 @@ export default function FolderDetails() {
 
   return (
     <>
-      <div className="space-y-8">
-        <div>
-          <h1 className="text-4xl font-semibold">{folder.name}</h1>
+      <div className="space-y-4">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-4xl font-semibold">{folder.name}</h1>
+            <p className="mt-4 text-xl opacity-70">
+              Lessons in folder: {folder.lessonsCount ?? 0}
+            </p>
+          </div>
 
-          <p className="mt-4 text-xl opacity-70">
-            Lessons in folder: {folder.lessonsCount ?? 0}
-          </p>
+          <button
+            type="button"
+            onClick={() => setSelectLessonsOpen(true)}
+            className="rounded-2xl bg-navy px-5 py-3 text-lg text-white transition-all duration-200 hover:-translate-y-[1px] hover:shadow-lg active:scale-[0.97]"
+          >
+            + Add lessons
+          </button>
         </div>
-
-        <button
-          type="button"
-          onClick={() => setSelectLessonsOpen(true)}
-          className="w-fit rounded-2xl bg-navy px-5 py-3 text-lg text-white hover:opacity-90"
-        >
-          + Add lessons
-        </button>
-
         <LessonBrowser
           key={refreshKey}
           collectionRef={folderLessonsRef}

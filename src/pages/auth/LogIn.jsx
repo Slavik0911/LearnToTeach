@@ -5,6 +5,16 @@ import { FcGoogle } from "react-icons/fc";
 import { auth } from "@/firebase";
 import useGoogleAuth from "@/hooks/useGoogleAuth";
 import isAdmin from "@/utils/isAdmin";
+import {
+  authInput,
+  authSubmitBtn,
+  authGoogleBtn,
+  authLink,
+  authSecondaryText,
+  authDivider,
+  authDividerLine,
+  authDividerText,
+} from "@/components/ui/styles/formStyles";
 
 export default function LogIn() {
   const [email, setEmail] = useState("");
@@ -33,23 +43,41 @@ export default function LogIn() {
     }
   }
 
-  const inputCls =
-    "w-[320px] max-w-full rounded-full bg-gray-200 px-6 py-3 text-xl text-black outline-none placeholder:text-gray-600 focus:ring-2 focus:ring-navy/40";
-
   return (
     <div className="min-h-[70vh] flex items-start justify-center">
       <div className="w-full max-w-md pt-10">
         <h1 className="text-center text-5xl font-semibold">Log In</h1>
 
         <form onSubmit={handleSubmit} className="mt-5 flex flex-col items-center gap-4">
-          <input type="email" placeholder="Email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} required />
-          <input type="password" placeholder="Password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} required />
+          <input
+            type="email"
+            placeholder="Email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className={authInput}
+            required
+          />
 
-          <Link to="/forgot-password" className="w-[320px] max-w-full text-left text-lg text-blue-500 hover:underline">
+          <input
+            type="password"
+            placeholder="Password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={authInput}
+            required
+          />
+
+          <Link to="/forgot-password" className={`w-[320px] max-w-full text-left text-lg ${authLink}`}>
             Forgot password
           </Link>
 
-          <button type="submit" disabled={anyLoading} className="w-[320px] max-w-full rounded-full bg-navy py-3 text-2xl text-white transition active:scale-[0.99] disabled:opacity-60">
+          <button
+            type="submit"
+            disabled={anyLoading}
+            className={authSubmitBtn}
+          >
             {loading ? "..." : "Done"}
           </button>
 
@@ -59,9 +87,9 @@ export default function LogIn() {
 
           {anyErr && <p className="w-[320px] max-w-full text-center text-red-500">{anyErr}</p>}
 
-          <p className="pt-1 text-lg text-gray-800">
+          <p className={authSecondaryText}>
             Don't have account?{" "}
-            <Link to="/signup" className="text-blue-500 hover:underline">Sign up</Link>
+            <Link to="/signup" className={authLink}>Sign up</Link>
           </p>
         </form>
       </div>
@@ -71,10 +99,10 @@ export default function LogIn() {
 
 function Divider() {
   return (
-    <div className="w-[320px] max-w-full flex items-center gap-3">
-      <div className="h-px flex-1 bg-gray-300" />
-      <span className="text-lg text-gray-500">or</span>
-      <div className="h-px flex-1 bg-gray-300" />
+    <div className={authDivider}>
+      <div className={authDividerLine} />
+      <span className={authDividerText}>or</span>
+      <div className={authDividerLine} />
     </div>
   );
 }
@@ -85,7 +113,7 @@ function GoogleButton({ onClick, disabled }) {
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className="w-[320px] max-w-full flex items-center justify-center gap-3 rounded-full border-2 border-gray-300 bg-white py-3 text-lg font-medium text-gray-700 transition hover:bg-gray-50 active:scale-[0.99] disabled:opacity-60"
+      className={authGoogleBtn}
     >
       <span>Continue with Google</span>
       <FcGoogle size={20} />

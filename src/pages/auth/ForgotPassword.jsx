@@ -2,6 +2,11 @@ import { useState } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../../firebase";
 import { Link } from "react-router-dom";
+import {
+  authInput,
+  authSubmitBtn,
+  authLink,
+} from "@/components/ui/styles/formStyles";
 
 //This page is used for resetting the password, it sends a password reset email to the user using Firebase Auth
 export default function ForgotPassword() {
@@ -40,21 +45,21 @@ export default function ForgotPassword() {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-[320px] max-w-full rounded-full bg-gray-200 px-6 py-3 text-xl text-black outline-none placeholder:text-gray-600 focus:ring-2 focus:ring-navy/40"
+            className={authInput}
             required
           />
 
           <button
             type="submit"
             disabled={loading}
-            className="w-[320px] max-w-full rounded-full bg-navy py-3 text-2xl text-white disabled:opacity-60"
+            className={authSubmitBtn}
           >
             {loading ? "..." : "Send reset link"}
           </button>
 
           {msg && <p className="w-[320px] max-w-full text-center text-green-600">{msg}</p>}
           {err && <p className="w-[320px] max-w-full text-center text-red-500">{err}</p>}
-          <Link to="/login" className="text-blue-500 hover:underline">
+          <Link to="/login" className={authLink}>
             Back to Log In
           </Link>
         </form>

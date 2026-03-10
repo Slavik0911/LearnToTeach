@@ -8,8 +8,8 @@ import {
   modalBtn,
   modalBtnPrimary,
   modalBtnSecondary,
-} from "@/components/ui/profile/modalStyles";
-
+  modalInputError,
+} from "@/components/ui/styles/formStyles";;
 
 export default function CreateFolderModal({ open, onClose, onConfirm, isSaving, limitReached }) {
   const [name, setName] = useState("");
@@ -44,7 +44,7 @@ export default function CreateFolderModal({ open, onClose, onConfirm, isSaving, 
         <p className={modalText}>Enter a name for your folder</p>
 
         {limitReached && (
-          <p className="mt-3 text-red-500 text-lg">
+          <p className="mt-3 text-lg text-red-500">
             You've reached the 15 folder limit.
           </p>
         )}
@@ -56,7 +56,7 @@ export default function CreateFolderModal({ open, onClose, onConfirm, isSaving, 
           maxLength={30}
           disabled={limitReached}
           placeholder="Folder name"
-          className="mt-6 w-full rounded-2xl bg-gray px-5 py-3 text-xl outline-none focus:ring-2 focus:ring-navy/30 disabled:opacity-50"
+          className={modalInputError(false)}
         />
 
         <div className={modalActions}>
@@ -72,7 +72,7 @@ export default function CreateFolderModal({ open, onClose, onConfirm, isSaving, 
             type="button"
             onClick={handleConfirm}
             disabled={!name.trim() || isSaving || limitReached}
-            className={`${modalBtn} ${modalBtnPrimary} disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none disabled:active:scale-100`}
+            className={`${modalBtn} ${modalBtnPrimary}`}
           >
             {isSaving ? "Saving..." : "Save"}
           </button>

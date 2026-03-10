@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { db } from "@/firebase";
-import { doc, getDoc, collection } from "firebase/firestore";
+import { doc, getDoc, collection, deleteDoc, updateDoc, increment } from "firebase/firestore";
 import LessonBrowser from "@/components/ui/lesson/LessonBrowser";
 import SelectLessonsModal from "@/components/ui/profile/SelectLessonsModal";
 import useAuth from "@/hooks/useAuth";
@@ -17,6 +17,17 @@ export default function FolderDetails() {
   const [selectLessonsOpen, setSelectLessonsOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
+  const [selectedLessonIdsToDelete, setSelectedLessonIdsToDelete] = useState([]);
+
+  // Toggle lesson selection for deletion
+  function toggleLessonSelection(lessonId) {
+    setSelectedLessonIdsToDelete((prev) =>
+      prev.includes(lessonId)
+        ? prev.filter((id) => id !== lessonId)
+        : [...prev, lessonId]
+    );
+  }
+  
   useEffect(() => {
 
     // Load folder data
@@ -66,9 +77,66 @@ export default function FolderDetails() {
   if (notFound) return <div>Folder not found</div>;
   if (!folder) return null;
 
+  // Remove selected lessons from the folder
+  async function removeSelectedLessons() {
+    try {
+      if (!user || !id) return;
+
+      const deletePromises = selectedLessonIdsToDelete.map((lessonId) =>
+        deleteDoc(doc(db, "users", user.uid, "folders", id, "lessons", lessonId))
+      );
+
+      await Promise.all(deletePromises);
+
+      await updateDoc(
+        doc(db, "users", user.uid, "folders", id),
+        {
+          lessonsCount: increment(-selectedLessonIdsToDelete.length),
+        }
+      );
+
+      setSelectedLessonIdsToDelete([]);
+      setRefreshKey((prev) => prev + 1);
+
+    } catch (e) {
+      console.log("REMOVE SELECTED LESSONS ERROR:", e);
+    }
+  }
+  
   return (
     <>
       <div className="space-y-4">
+        {selectedLessonIdsToDelete.length > 0 && (
+          <div className="flex items-center justify-between rounded-xl bg-red-50 px-5 py-3 border border-red-200">
+            
+            <span className="text-lg">
+              {selectedLessonIdsToDelete.length} lesson
+              {selectedLessonIdsToDelete.length > 1 ? "s" : ""} selected
+            </span>
+
+            <div className="flex gap-3">
+
+              {/* Cancel button */}
+              <button
+                type="button"
+                onClick={() => setSelectedLessonIdsToDelete([])}
+                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition"
+              >
+                Cancel
+              </button>
+
+              {/* Delete selected button */}
+              <button
+                type="button"
+                onClick={removeSelectedLessons}
+                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+              >
+                Delete selected
+              </button>
+
+            </div>
+          </div>
+        )}
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-4xl font-semibold">{folder.name}</h1>
@@ -90,6 +158,8 @@ export default function FolderDetails() {
           collectionRef={folderLessonsRef}
           sortField="addedAt"
           emptyMessage="This folder is empty."
+          selectedLessonIds={selectedLessonIdsToDelete}
+          onToggleLessonDelete={toggleLessonSelection}
         />
       </div>
 

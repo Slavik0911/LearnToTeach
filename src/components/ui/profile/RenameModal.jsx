@@ -11,20 +11,22 @@ import {
   modalInputBase,
 } from "@/components/ui/styles/formStyles";;
 
-export default function EditNameModal({
+export default function RenameModal({
   open,
-  currentName,
+  title,
+  currentValue,
   onClose,
   onConfirm,
+  confirmText = "Save"
 }) {
-  const [name, setName] = useState(currentName);
+  const [name, setName] = useState(currentValue);
 
   // Reset name when modal opens with new currentName
   useEffect(() => {
     if (open) {
-      setName(currentName);
+      setName(currentValue);
     }
-  }, [open, currentName]);
+  }, [open, currentValue]);
 
   if (!open) return null;
 
@@ -38,7 +40,7 @@ export default function EditNameModal({
       />
 
       <div className={`${modalPanel} w-full max-w-md p-8`}>
-        <h2 className={modalTitle}>Edit name</h2>
+        <h2 className={modalTitle}>{title}</h2>
         <p className={modalText}>Enter your new name below</p>
 
         <input
@@ -64,7 +66,7 @@ export default function EditNameModal({
             disabled={!name.trim()}
             className={`${modalBtn} ${modalBtnPrimary} disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none disabled:active:scale-100`}
           >
-            Save
+            {confirmText}
           </button>
         </div>
       </div>

@@ -8,7 +8,13 @@ import useLessonPaginator from "@/hooks/useLessonPaginator";
 // collectionRef  — Firestore CollectionReference to paginate
 // sortField      — field name to sort by (e.g. "createdAt" | "savedAt")
 // emptyMessage   — text shown when no lessons match the current filters
-export default function LessonBrowser({ collectionRef, sortField, emptyMessage = "No lessons found." }) {
+export default function LessonBrowser({
+  collectionRef,
+  sortField,
+  emptyMessage = "No lessons found.",
+  selectedLessonIds = [],
+  onToggleLessonDelete,
+}) {
   const {
     age, setAge,
     level, setLevel,
@@ -43,6 +49,8 @@ export default function LessonBrowser({ collectionRef, sortField, emptyMessage =
               title={lesson.title}
               description={lesson.description}
               favoriteCount={lesson.favoriteCount}
+              isSelectedForDelete={selectedLessonIds.includes(lesson.id)}
+              onTrashClick={() => onToggleLessonDelete?.(lesson.id)}
             />
           ))}
         </LessonGrid>

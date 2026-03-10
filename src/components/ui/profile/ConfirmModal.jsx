@@ -8,7 +8,7 @@ import {
   modalBtnPrimary,
   modalBtnDanger,
   modalBtnSecondary,
-} from "@/components/ui/profile/modalStyles";
+} from "@/components/ui/styles/formStyles";
 
 export default function ConfirmModal({
   open,

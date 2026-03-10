@@ -1,9 +1,8 @@
 import StatCard from "@/components/ui/stats/StatCard";
 import StatGrid from "@/components/ui/stats/StatGrid";
-import { BarChart } from "lucide-react";
-import { Folder } from "lucide-react";
+import { BarChart, Pencil, Trash2, Folder } from "lucide-react";
 import ProfileSidebar from "@/components/ui/profile/ProfileSidebar";
-import EditNameModal from "@/components/ui/profile/EditNameModal";
+import RenameModal from "@/components/ui/profile/RenameModal";
 import CreateFolderModal from "@/components/ui/profile/CreateFolderModal";
 import SelectLessonsModal from "@/components/ui/profile/SelectLessonsModal";
 
@@ -25,6 +24,9 @@ export default function Profile() {
     const [folders, setFolders] = useState([]);
     const [selectLessonsOpen, setSelectLessonsOpen] = useState(false);
     const [newFolderId, setNewFolderId] = useState(null);
+    const [contextMenu, setContextMenu] = useState(null);
+    const [editingFolder, setEditingFolder] = useState(null);
+    const [deletingFolder, setDeletingFolder] = useState(null);
     const [profile, setProfile] = useState({
       name: "",
       email: "",
@@ -123,21 +125,39 @@ export default function Profile() {
     }
     const [editName, setEditName] = useState(false);
 
+    // Update the name, use in changeName and renameFolder
+    async function updateName(docRef, newName) {
+        const trimmed = newName.trim();
+        if (!trimmed) return null;
+
+        await updateDoc(docRef, { name: trimmed });
+
+        return trimmed;
+    }
+
+    
     // Function to change the user's name
     async function changeName(newName) {
       try {
         const user = auth.currentUser;
         if (!user) return;
 
-        await updateDoc(doc(db, "users", user.uid), { name: newName });
-        setProfile((prev) => ({ ...prev, name: newName }));
+        const newValue = await updateName(
+          doc(db, "users", user.uid),
+          newName
+        );
+        
+        if (!newValue) return;
+
+        setProfile((prev) => ({ ...prev, name: newValue }));
         setEditName(false);
       } catch (e) {
         console.log("CHANGE NAME ERROR:", e);
       }
     }
-
-    // Create a new folder
+  
+  
+    // Create a new folder 
     async function doCreateFolder(name) {
       const user = auth.currentUser;
       if (!user) return;
@@ -172,7 +192,75 @@ export default function Profile() {
       } finally {
         setIsSavingFolder(false);
       }
+    }
+
+    // Rename a folder
+    async function renameFolder(folder, newName) {
+    try {
+      const user = auth.currentUser;
+      if (!user || !folder) return;
+
+      const newValue = await updateName(
+        doc(db, "users", user.uid, "folders", folder.id),
+        newName
+      );
+
+      if (!newValue) return;
+
+      // Update the folder name in the folders array without mutating the original array
+      setFolders((prev) =>
+        prev.map((item) =>
+          item.id === folder.id
+            ? { ...item, title: newValue }
+            : item
+        )
+      );
+
+      setEditingFolder(null);
+    } catch (e) {
+      console.log("RENAME FOLDER ERROR:", e);
+    }
+  }
+  
+  // Delete a folder
+  async function deleteFolder(folder) {
+  try {
+    const user = auth.currentUser;
+    if (!user || !folder) return;
+
+    const lessonsRef = collection(db, "users", user.uid, "folders", folder.id, "lessons");
+    const lessonsSnap = await getDocs(lessonsRef);
+
+    const deleteLessonPromises = lessonsSnap.docs.map((lessonDoc) =>
+      deleteDoc(lessonDoc.ref)
+    );
+
+    await Promise.all(deleteLessonPromises);
+
+    await deleteDoc(doc(db, "users", user.uid, "folders", folder.id));
+
+    setFolders((prev) => prev.filter((item) => item.id !== folder.id));
+    setDeletingFolder(null);
+  } catch (e) {
+    console.log("DELETE FOLDER ERROR:", e);
+  }
 }
+
+
+  // Close the context menu when clicking outside
+  useEffect(() => {
+    function handleWindowClick() {
+      setContextMenu(null);
+    }
+
+    window.addEventListener("click", handleWindowClick);
+
+    return () => {
+      window.removeEventListener("click", handleWindowClick);
+    };
+  }, []);
+
+
   // If the profile is still loading, we display a loading message
   if (loadingProfile) return <div>Loading...</div>;
 
@@ -180,6 +268,7 @@ export default function Profile() {
   // when the user clicks on sign out or delete, we set the confirm state with the type of action,
   const modalOpen = !!confirm;
   const isDelete = confirm?.type === "delete";
+  console.log(editingFolder);
   return (
     <>
       <div className="grid grid-cols-[1fr_1.35fr] gap-6">
@@ -227,6 +316,16 @@ export default function Profile() {
                   value={f.value}
                   note=""
                   route={`/folders/${f.id}`}
+                  // Right-click to open context menu
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+
+                    setContextMenu({
+                      folder: f,
+                      x: e.clientX,
+                      y: e.clientY,
+                    });
+                  }}
                 />
               ))}
               <StatCard add onClick={() => setCreateFolder(true)} />
@@ -254,11 +353,31 @@ export default function Profile() {
           if (type === "signout") await doSignOut();
         }}
       />
-      <EditNameModal
+      <RenameModal
         open={editName}
-        currentName={profile.name}
+        title="Edit profile name"
+        currentValue={profile.name}
         onClose={() => setEditName(false)}
         onConfirm={changeName}
+      />
+      <RenameModal
+        open={!!editingFolder}
+        title="Rename folder"
+        currentValue={editingFolder?.title || ""}
+        onClose={() => setEditingFolder(null)}
+        onConfirm={(newName) => renameFolder(editingFolder, newName)}
+      />
+      <ConfirmModal
+        open={!!deletingFolder}
+        title="Delete folder?"
+        text={`Folder "${deletingFolder?.title || ""}" will be permanently deleted.`}
+        confirmText="Delete"
+        danger
+        onClose={() => setDeletingFolder(null)}
+        onConfirm={async () => {
+          await deleteFolder(deletingFolder);
+        }}
+
       />
       <SelectLessonsModal
         open={selectLessonsOpen}
@@ -270,6 +389,39 @@ export default function Profile() {
           await loadFolders(user);
         }}
       />
+      {contextMenu && (
+        <div
+          className="fixed z-50 min-w-[180px] rounded-2xl border border-gray-200 bg-white p-2 shadow-xl"
+          style={{
+            top: contextMenu.y,
+            left: contextMenu.x,
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => {
+              setEditingFolder(contextMenu.folder);
+              setContextMenu(null);
+            }}
+            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-lg hover:bg-gray-100"
+          >
+            <Pencil size={18} />
+            Change name
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setDeletingFolder(contextMenu.folder);
+              setContextMenu(null);
+            }}
+            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-lg text-red-600 hover:bg-red-50"
+          >
+            <Trash2 size={18} />
+            Delete
+          </button>
+        </div>
+      )}
     </>
   );
 }

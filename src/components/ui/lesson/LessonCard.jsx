@@ -1,45 +1,64 @@
 import { NavLink } from "react-router-dom";
 import LevelBadge from "@/components/ui/general/LevelBadge";
-import { Bookmark } from "lucide-react";
+import { Bookmark, Trash2 } from "lucide-react";
 
 // This component is used for displaying a card with the lesson information
-export default function LessonCard({ level, title, description, favoriteCount, slug}) {
-
-  // The background color of the card is determined by the level of the lesson, 
-  // it is either lavender for starters or light blue for movers
+export default function LessonCard({
+  level,
+  title,
+  description,
+  favoriteCount,
+  slug,
+  isSelectedForDelete = false,
+  onTrashClick,
+}) {
   return (
-    // NavLink is used for making the card clickable, it navigates to the lesson details page when clicked
-      <NavLink
-        to={`/lessons/${slug}`}
-        className={`block rounded-2xl p-5
-        hover:-translate-y-[3px] hover:shadow-xl scale-[1.01]
-        transition-all duration-200
-        flex flex-col
-        h-[400px]
-        bg-lightblue`}
-      >
-        {/* top badges */}
-        <div className="flex justify-between items-center mb-3">
-
-          <div className="flex items-center gap-2 text-xl">
-            <Bookmark className="w-6 h-6" />
-            <span className="font-medium">{favoriteCount}</span>
-          </div>
-
-          <LevelBadge level={level} />
-
+    <NavLink
+      to={`/lessons/${slug}`}
+      className={`block rounded-2xl p-5
+      hover:-translate-y-[3px] hover:shadow-xl scale-[1.01]
+      transition-all duration-200
+      flex flex-col
+      h-[400px]
+      ${isSelectedForDelete ? "bg-red-100 ring-2 ring-red-400" : "bg-lightblue"}`}
+    >
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-xl">
+          <Bookmark className="h-6 w-6" />
+          <span className="font-medium">{favoriteCount}</span>
         </div>
 
-        {/* title */}
-        <h3 className="text-2xl font-semibold leading-snug mb-3 group-hover:opacity-90 break-words">
-          {title}
-        </h3>
+        <div className="flex items-center gap-3">
+          <LevelBadge level={level} />
 
-        {/* description */}
-        <p className="text-base leading-relaxed opacity-80 break-words flex-1 min-h-0 overflow-hidden break-all">
-          {description}
-        </p>
+          {/* Trash button for delete mode */}
+          {onTrashClick && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onTrashClick();
+              }}
+              className={`rounded-lg p-1 transition ${
+                isSelectedForDelete
+                  ? "bg-red-200 text-red-600"
+                  : "text-gray-600 hover:bg-red-100 hover:text-red-600"
+              }`}
+            >
+              <Trash2 size={20} />
+            </button>
+          )}
+        </div>
+      </div>
 
-      </NavLink>
+      <h3 className="mb-3 break-words text-2xl font-semibold leading-snug">
+        {title}
+      </h3>
+
+      <p className="min-h-0 flex-1 overflow-hidden break-all text-base leading-relaxed opacity-80">
+        {description}
+      </p>
+    </NavLink>
   );
 }

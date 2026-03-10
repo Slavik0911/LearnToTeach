@@ -67,7 +67,7 @@ function Home() {
                 level={lesson.level}
                 title={lesson.title}
                 description={lesson.description}
-                saved={lesson.saved}
+                favoriteCount={lesson.favoriteCount}
               />
             ))}
       </LessonGrid>

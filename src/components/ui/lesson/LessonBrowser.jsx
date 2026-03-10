@@ -42,7 +42,7 @@ export default function LessonBrowser({ collectionRef, sortField, emptyMessage =
               level={lesson.level}
               title={lesson.title}
               description={lesson.description}
-              saved={lesson.saved}
+              favoriteCount={lesson.favoriteCount}
             />
           ))}
         </LessonGrid>

@@ -134,7 +134,7 @@ async function handleSave() {
     age,
     level,
     images: urls,
-    saved: 0,
+    favoriteCount: 0,
     createdAt: serverTimestamp(),
   });
 

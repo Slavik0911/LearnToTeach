@@ -3,7 +3,7 @@ import LevelBadge from "@/components/ui/general/LevelBadge";
 import { Bookmark } from "lucide-react";
 
 // This component is used for displaying a card with the lesson information
-export default function LessonCard({ level, title, description, saved, slug}) {
+export default function LessonCard({ level, title, description, favoriteCount, slug}) {
 
   // The background color of the card is determined by the level of the lesson, 
   // it is either lavender for starters or light blue for movers
@@ -23,7 +23,7 @@ export default function LessonCard({ level, title, description, saved, slug}) {
 
           <div className="flex items-center gap-2 text-xl">
             <Bookmark className="w-6 h-6" />
-            <span className="font-medium">{saved}</span>
+            <span className="font-medium">{favoriteCount}</span>
           </div>
 
           <LevelBadge level={level} />

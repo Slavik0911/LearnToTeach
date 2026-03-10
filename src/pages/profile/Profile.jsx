@@ -29,7 +29,7 @@ export default function Profile() {
       name: "",
       email: "",
       plan: "",
-      savedCount: 0,
+      favoriteCount: 0,
       user: null,
     });
 
@@ -66,7 +66,7 @@ export default function Profile() {
                 name: data.name || "User",
                 email: data.email || user.email || "",
                 plan: "free",
-                savedCount: data.savedCount || 0,
+                favoriteCount: data.favoriteCount || 0,
                 user: user,
               });
 
@@ -77,7 +77,7 @@ export default function Profile() {
                 name: user.displayName || "User",
                 email: user.email || "",
                 plan: user.plan || "free",
-                savedCount: user.savedCount || 0,
+                favoriteCount: user.favoriteCount || 0,
                 user: user,
               });
               setLoadingProfile(false);
@@ -202,7 +202,7 @@ export default function Profile() {
             </h3>
 
             <StatGrid cols={3}>
-              <StatCard title="Saved" value={profile.savedCount} note="" route="/saved-lessons" />
+              <StatCard title="Favorites" value={profile.favoriteCount} note="" route="/favorite-lessons" />
               <StatCard title="Recently watched" value={35} note="" route="/recently-watched" />
               <StatCard title="Downloaded" value="81" note="" route="/downloaded" />
             </StatGrid>

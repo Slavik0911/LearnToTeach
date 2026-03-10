@@ -27,7 +27,7 @@ export async function addLessonToFolder(uid, folderId, lesson) {
     topic: lesson.topic || "",
     age: lesson.age || "",
     level: lesson.level || "",
-    saved: lesson.saved || 0,
+    favoriteCount: lesson.favoriteCount || 0,
     images: lesson.images || [],
     addedAt: serverTimestamp(),
   });

@@ -4,7 +4,7 @@ import { collection } from "firebase/firestore";
 import useAuth from "@/hooks/useAuth";
 import LessonBrowser from "@/components/ui/lesson/LessonBrowser";
 
-export default function SavedLessons() {
+export default function FavoriteLessons() {
   const user = useAuth();
   const uid = user?.uid ?? null;
 
@@ -14,13 +14,13 @@ export default function SavedLessons() {
   );
 
   if (user === undefined) return <div>Loading...</div>;
-  if (!uid) return <div>Please log in to view saved lessons.</div>;
+  if (!uid) return <div>Please log in to view favorite lessons.</div>;
 
   return (
     <LessonBrowser
       collectionRef={favoritesRef}
       sortField="savedAt"
-      emptyMessage="You haven't saved any lessons yet."
+      emptyMessage="You haven't favorited any lessons yet."
     />
   );
 }

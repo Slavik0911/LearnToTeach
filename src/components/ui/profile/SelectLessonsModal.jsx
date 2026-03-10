@@ -4,7 +4,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { addLessonToFolder } from "@/lib/addLessonToFolder";
 
 export default function SelectLessonsModal({ open, folderId, onClose, onAdded }) {
-  const [savedLessons, setSavedLessons] = useState([]);
+  const [favoriteLessons, setFavoriteLessons] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedLessonIds, setSelectedLessonIds] = useState([]);
   
@@ -14,8 +14,8 @@ export default function SelectLessonsModal({ open, folderId, onClose, onAdded })
 
   useEffect(() => {
 
-    // Load saved lessons and folder lessons
-    async function loadSavedLessons() {
+    // Load favorite lessons and folder lessons
+    async function loadFavoriteLessons() {
       if (!open) return;
 
       try {
@@ -25,7 +25,7 @@ export default function SelectLessonsModal({ open, folderId, onClose, onAdded })
         setSelectedLessonIds([]);
         setLoading(true);
 
-        // Load saved lessons
+        // Load favorite lessons
         const favoritesRef = collection(db, "users", user.uid, "favorites");
         const snap = await getDocs(favoritesRef);
 
@@ -34,7 +34,7 @@ export default function SelectLessonsModal({ open, folderId, onClose, onAdded })
           ...doc.data(),
         }));
 
-        setSavedLessons(lessons);
+        setFavoriteLessons(lessons);
 
         // Load folder lessons
         const folderLessonsRef = collection(
@@ -52,13 +52,13 @@ export default function SelectLessonsModal({ open, folderId, onClose, onAdded })
         // Set folder lesson IDs
         setFolderLessonIds(existingIds);
       } catch (e) {
-        console.log("LOAD SAVED LESSONS ERROR:", e);
+        console.log("LOAD FAVORITE LESSONS ERROR:", e);
       } finally {
         setLoading(false);
       }
     }
 
-    loadSavedLessons();
+    loadFavoriteLessons();
   }, [open, folderId]);
 
   // Toggle lesson selection
@@ -78,7 +78,7 @@ export default function SelectLessonsModal({ open, folderId, onClose, onAdded })
 
       setIsSaving(true);
         
-      const selectedLessons = savedLessons.filter((lesson) =>
+      const selectedLessons = favoriteLessons.filter((lesson) =>
         selectedLessonIds.includes(lesson.id)
       );
 
@@ -122,13 +122,13 @@ export default function SelectLessonsModal({ open, folderId, onClose, onAdded })
         <div className="mt-6 max-h-[400px] overflow-auto rounded-2xl bg-gray-100 p-6">
           {loading && <p className="text-lg opacity-60">Loading...</p>}
 
-          {!loading && savedLessons.length === 0 && (
-            <p className="text-lg opacity-60">You have no saved lessons yet.</p>
+          {!loading && favoriteLessons.length === 0 && (
+            <p className="text-lg opacity-60">You have no favorite lessons yet.</p>
           )}
 
-          {!loading && savedLessons.length > 0 && (
+          {!loading && favoriteLessons.length > 0 && (
             <div className="space-y-3">
-              {savedLessons.map((lesson) => {
+              {favoriteLessons.map((lesson) => {
                 // Check if lesson is selected
                 const isSelected = selectedLessonIds.includes(lesson.id);
                 // Check if lesson is already in folder

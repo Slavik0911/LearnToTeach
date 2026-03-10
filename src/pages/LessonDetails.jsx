@@ -17,7 +17,7 @@ function LessonDetails() {
   const [notFound, setNotFound] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [savedCount, setSavedCount] = useState(0);
+  const [favoriteCount, setFavoriteCount] = useState(0);
   // The lesson is loaded from the Firestore database, we get the lesson with the id from the url and display its details
   useEffect(() => {
     async function loadLesson() {
@@ -34,7 +34,7 @@ function LessonDetails() {
       } else {
         const lessonData = { id: snap.id, ...snap.data() };
         setLesson(lessonData);
-        setSavedCount(lessonData.saved || 0);
+        setFavoriteCount(lessonData.favoriteCount || 0);
         setCurrentIndex(0);
       }
 
@@ -91,10 +91,10 @@ function LessonDetails() {
 
       if (favoriteSnap.exists()) {
         await deleteDoc(favoriteRef);
-        await updateDoc(lessonRef, { saved: increment(-1) });
-        await updateDoc(userRef, { savedCount: increment(-1) });
+        await updateDoc(lessonRef, { favoriteCount: increment(-1) });
+        await updateDoc(userRef, { favoriteCount: increment(-1) });
         setIsFavorite(false);
-        setSavedCount((prev) => Math.max(prev - 1, 0));
+        setFavoriteCount((prev) => Math.max(prev - 1, 0));
         console.log("Removed from favorites");
       } else {
           await setDoc(favoriteRef, {
@@ -109,11 +109,11 @@ function LessonDetails() {
             savedAt: serverTimestamp(),
           });
 
-          await updateDoc(lessonRef, { saved: increment(1) });
-          await updateDoc(userRef, { savedCount: increment(1) });
+          await updateDoc(lessonRef, { favoriteCount: increment(1) });
+          await updateDoc(userRef, { favoriteCount: increment(1) });
 
           setIsFavorite(true);
-          setSavedCount((prev) => prev + 1);
+          setFavoriteCount((prev) => prev + 1);
           console.log("Added to favorites");
         }
       } catch (e) {
@@ -188,7 +188,7 @@ function LessonDetails() {
                 }`}
               />
             </button>
-          <span className="text-xl">{savedCount}</span>
+          <span className="text-xl">{favoriteCount}</span>
         </div>
       </div>
     </div>

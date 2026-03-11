@@ -14,6 +14,7 @@ import ForgotPassword from "@/pages/auth/ForgotPassword";
 import AddLesson from "@/pages/admin/AddLesson";
 import FavoriteLessons from "@/pages/profile/FavoriteLessons.jsx";
 import FolderDetails from "@/pages/profile/FolderDetails";
+import VerifyEmail from "@/pages/auth/VerifyEmail";
 
 // This component is responsible for defining all the routes in the application and 
 // rendering the appropriate components based on the URL
@@ -32,6 +33,7 @@ export default function Router() {
         <Route path="/login" element={<LogIn />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
 
         {/* protected admin route */}
         <Route

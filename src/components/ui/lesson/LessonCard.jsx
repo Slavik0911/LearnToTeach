@@ -22,7 +22,7 @@ export default function LessonCard({
       transition-all duration-200
       flex flex-col
       h-[400px]
-      ${isSelectedForDelete ? "bg-red-100 ring-2 ring-red-400" : "bg-lightblue"}`}
+      ${isSelectedForDelete ? "bg-red-100 ring-2 ring-red-400" : "bg-blue-400"}`}
     >
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2 text-xl">

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "@/firebase";
 import useGoogleAuth from "@/hooks/useGoogleAuth";
@@ -28,6 +28,9 @@ export default function SignUp() {
     try {
       // Create user with email and password
       const cred = await createUserWithEmailAndPassword(auth, email, password);
+
+      await sendEmailVerification(cred.user);
+
       await setDoc(doc(db, "users", cred.user.uid), {
         email: (cred.user.email || "").toLowerCase(),
         name: name.trim(),
@@ -35,10 +38,13 @@ export default function SignUp() {
         plan: "free",
         createdAt: serverTimestamp(),
       });
-      // Navigate to profile page
-      navigate("/Profile", { replace: true });
+      // Navigate to verify email page
+      navigate("/verify-email", { replace: true });
     } catch (error) {
       // Set error message
+      console.log("SIGN UP ERROR:", error);
+      console.log("ERROR CODE:", error.code);
+      console.log("ERROR MESSAGE:", error.message);
       setErr(error.code || error.message);
     } finally {
       // Reset loading state

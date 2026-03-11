@@ -13,6 +13,7 @@ import { auth, db } from "@/firebase";
 import { signOut, deleteUser, onAuthStateChanged  } from "firebase/auth";
 import { doc, deleteDoc, getDoc, updateDoc, collection, setDoc, serverTimestamp } from "firebase/firestore";
 import { getCollection } from "@/utils/getCollection";
+import Breadcrumb from "@/components/ui/navigation/Breadcrumb";
 
 
 // This page is used for displaying the user's profile
@@ -35,7 +36,7 @@ export default function Profile() {
       favoriteCount: 0,
       user: null,
     });
-
+    
     // Load folders from Firestore
     async function loadFolders(user) {
       try {
@@ -269,6 +270,12 @@ export default function Profile() {
   console.log(editingFolder);
   return (
     <>
+      <Breadcrumb
+        items={[
+          { label: "Home", to: "/" },
+          { label: "Profile" },
+        ]}
+      />
       <div className="grid grid-cols-[1fr_1.35fr] gap-6">
         <ProfileSidebar
           name={profile.name}

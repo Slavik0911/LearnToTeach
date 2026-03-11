@@ -14,6 +14,9 @@ export default function LessonBrowser({
   emptyMessage = "No lessons found.",
   selectedLessonIds = [],
   onToggleLessonDelete,
+  from = "lessons",
+  folderId = null,
+  folderTitle = "",
 }) {
   const {
     age, setAge,
@@ -51,6 +54,11 @@ export default function LessonBrowser({
               favoriteCount={lesson.favoriteCount}
               isSelectedForDelete={selectedLessonIds.includes(lesson.id)}
               onTrashClick={onToggleLessonDelete ? () => onToggleLessonDelete(lesson.id) : undefined}
+              linkState={{
+                from,
+                folderId,
+                folderTitle,
+              }}
             />
           ))}
         </LessonGrid>

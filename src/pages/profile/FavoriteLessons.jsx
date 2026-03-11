@@ -3,6 +3,7 @@ import { db } from "@/firebase";
 import { collection } from "firebase/firestore";
 import useAuth from "@/hooks/useAuth";
 import LessonBrowser from "@/components/ui/lesson/LessonBrowser";
+import Breadcrumb from "@/components/ui/navigation/Breadcrumb";
 
 export default function FavoriteLessons() {
   const user = useAuth();
@@ -17,10 +18,20 @@ export default function FavoriteLessons() {
   if (!uid) return <div>Please log in to view favorite lessons.</div>;
 
   return (
-    <LessonBrowser
-      collectionRef={favoritesRef}
-      sortField="savedAt"
-      emptyMessage="You haven't favorited any lessons yet."
-    />
+    <>
+      <Breadcrumb
+        items={[
+          { label: "Home", to: "/" },
+          { label: "Profile", to: "/profile" },
+          { label: "Favorite Lessons" },
+        ]}
+      />
+      <LessonBrowser
+        collectionRef={favoritesRef}
+        sortField="savedAt"
+        emptyMessage="You haven't favorited any lessons yet."
+        from="favorite-lessons"
+      />
+    </>
   );
 }

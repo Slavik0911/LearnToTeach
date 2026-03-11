@@ -5,6 +5,7 @@ import { doc, getDoc, collection, deleteDoc, updateDoc, increment } from "fireba
 import LessonBrowser from "@/components/ui/lesson/LessonBrowser";
 import SelectLessonsModal from "@/components/ui/profile/SelectLessonsModal";
 import useAuth from "@/hooks/useAuth";
+import Breadcrumb from "@/components/ui/navigation/Breadcrumb";
 
 // Folder details page
 export default function FolderDetails() {
@@ -105,6 +106,13 @@ export default function FolderDetails() {
   
   return (
     <>
+      <Breadcrumb
+        items={[
+          { label: "Home", to: "/" },
+          { label: "Profile", to: "/profile" },
+          { label: folder.name },
+        ]}
+      />
       <div className="space-y-4">
         {selectedLessonIdsToDelete.length > 0 && (
           <div className="flex items-center justify-between rounded-xl bg-red-50 px-5 py-3 border border-red-200">
@@ -160,6 +168,9 @@ export default function FolderDetails() {
           emptyMessage="This folder is empty."
           selectedLessonIds={selectedLessonIdsToDelete}
           onToggleLessonDelete={toggleLessonSelection}
+          from="folder-lessons"
+          folderId={folder.id}
+          folderTitle={folder.name}
         />
       </div>
 

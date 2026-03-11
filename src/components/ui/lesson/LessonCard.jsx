@@ -11,10 +11,12 @@ export default function LessonCard({
   slug,
   isSelectedForDelete = false,
   onTrashClick,
+  linkState,
 }) {
   return (
     <NavLink
       to={`/lessons/${slug}`}
+      state={linkState}
       className={`block rounded-2xl p-5
       hover:-translate-y-[3px] hover:shadow-xl scale-[1.01]
       transition-all duration-200

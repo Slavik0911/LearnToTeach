@@ -1,17 +1,21 @@
 import { Bookmark } from "lucide-react";
 import LevelBadge from "@/components/ui/general/LevelBadge";
 import AgeBadge from "@/components/ui/general/AgeBadge";
-import { addLessonToFolder } from "@/lib/addLessonToFolder";
+import Breadcrumb from "@/components/ui/navigation/Breadcrumb";
 
-import { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, useLocation } from "react-router-dom";
 import { auth, db } from "@/firebase";
-import { doc, getDoc, setDoc, deleteDoc,  updateDoc, increment, serverTimestamp, collection, getDocs } from "firebase/firestore";
+import { doc, getDoc, setDoc, deleteDoc,  updateDoc, increment, serverTimestamp} from "firebase/firestore";
 
 // This page is used for displaying the details of a lesson
 function LessonDetails() {
 
   const { id } = useParams();
+  const location = useLocation();
+  const from = location.state?.from || "lessons-search";
+  const folderId = location.state?.folderId || null;
+  const folderTitle = location.state?.folderTitle || "";
   const [lesson, setLesson] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -133,65 +137,94 @@ function LessonDetails() {
   const safeIndex = Math.min(currentIndex, Math.max(images.length - 1, 0));
   const mainImg = images[safeIndex];
 
+  let breadcrumbItems;
+  // Determine breadcrumb items based on source
+  if (from === "favorite-lessons") {
+    breadcrumbItems = [
+      { label: "Home", to: "/" },
+      { label: "Favorite lessons", to: "/favorite-lessons" },
+      { label: lesson.title },
+    ];
+  } else if (from === "folder-lessons") {
+    breadcrumbItems = [
+      { label: "Home", to: "/" },
+      { label: "Profile", to: "/profile" },
+      {
+        label: folderTitle || "Folder",
+        to: folderId ? `/folders/${folderId}` : "/profile",
+      },
+      { label: lesson.title },
+    ];
+  } else {
+    breadcrumbItems = [
+      { label: "Home", to: "/" },
+      { label: lesson.title },
+    ];
+  }
   return (
-    <div className="grid grid-cols-[1.25fr_1fr] gap-10">
-      <div className="w-full">
-        <div className="bg-gray rounded-xl overflow-hidden h-[460px]">
-          {mainImg ? (
-            <img
-              src={mainImg}
-              alt="lesson"
-              className="w-full h-full object-cover"
-            />
-          ) : null}
-        </div>
-
-        <div className="grid grid-cols-4 gap-6 mt-6">
-          {images.slice(0, 4).map((img, i) => (
-            <button
-              key={img}
-              type="button"
-              onClick={() => setCurrentIndex(i)}
-              className={`rounded-lg overflow-hidden aspect-[4/3] border-2 transition ${
-                safeIndex === i ? "border-navy" : "border-transparent"
-              }`}
-              title={`Open image ${i + 1}`}
-            >
+    <>
+      <Breadcrumb items={breadcrumbItems} />
+      <div className="grid grid-cols-[1.25fr_1fr] gap-10">
+        
+        <div className="w-full">
+          <div className="bg-gray rounded-xl overflow-hidden h-[460px]">
+            {mainImg ? (
               <img
-                src={img}
-                alt={`thumb-${i + 1}`}
+                src={mainImg}
+                alt="lesson"
                 className="w-full h-full object-cover"
               />
-            </button>
-          ))}
-        </div>
-      </div>
+            ) : null}
+          </div>
 
-      <div className="relative pb-12 min-w-0">
-        <h1 className="text-4xl font-medium break-words">{lesson.title}</h1>
-
-        <div className="flex flex-wrap items-center gap-3 mt-4">
-          <AgeBadge age={lesson.age} />
-
-          <LevelBadge level={lesson.level} />
-
-          <span className="text-3xl">#{String(lesson.topic).toUpperCase()}</span>
-        </div>
-
-        <p className="mt-6 text-xl break-words leading-relaxed">{lesson.description}</p>
-
-        <div className="absolute bottom-0 right-0 flex items-center gap-2">
-          <button type="button" onClick={() => toggleFavorite(lesson.id)}>
-              <Bookmark
-                className={`w-6 h-6 transition ${
-                  isFavorite ? "fill-navy text-navy" : "text-navy"
+          <div className="grid grid-cols-4 gap-6 mt-6">
+            {images.slice(0, 4).map((img, i) => (
+              <button
+                key={img}
+                type="button"
+                onClick={() => setCurrentIndex(i)}
+                className={`rounded-lg overflow-hidden aspect-[4/3] border-2 transition ${
+                  safeIndex === i ? "border-navy" : "border-transparent"
                 }`}
-              />
-            </button>
-          <span className="text-xl">{favoriteCount}</span>
+                title={`Open image ${i + 1}`}
+              >
+                <img
+                  src={img}
+                  alt={`thumb-${i + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative pb-12 min-w-0">
+          <h1 className="text-4xl font-medium break-words">{lesson.title}</h1>
+
+          <div className="flex flex-wrap items-center gap-3 mt-4">
+            <AgeBadge age={lesson.age} />
+
+            <LevelBadge level={lesson.level} />
+
+            <span className="text-3xl">#{String(lesson.topic).toUpperCase()}</span>
+          </div>
+
+          <p className="mt-6 text-xl break-words leading-relaxed">{lesson.description}</p>
+
+          <div className="absolute bottom-0 right-0 flex items-center gap-2">
+            <button type="button" onClick={() => toggleFavorite(lesson.id)}>
+                <Bookmark
+                  className={`w-6 h-6 transition ${
+                    isFavorite ? "fill-navy text-navy" : "text-navy"
+                  }`}
+                />
+              </button>
+            <span className="text-xl">{favoriteCount}</span>
+          </div>
         </div>
       </div>
-    </div>
+    </>
+    
   );
 }
 

@@ -2,14 +2,24 @@ import { Bookmark } from "lucide-react";
 import LevelBadge from "@/components/ui/general/LevelBadge";
 import AgeBadge from "@/components/ui/general/AgeBadge";
 import Breadcrumb from "@/components/ui/navigation/Breadcrumb";
+import useAdmin from "@/hooks/useAdmin";
+import ConfirmModal from "@/components/ui/profile/ConfirmModal";
 
 import { useEffect, useState } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { auth, db } from "@/firebase";
 import { doc, getDoc, setDoc, deleteDoc,  updateDoc, increment, serverTimestamp} from "firebase/firestore";
 
+import {
+  pageActions,
+  actionBtnSecondary,
+  actionBtnDanger,
+} from "@/components/ui/styles/formStyles";
+
 // This page is used for displaying the details of a lesson
 function LessonDetails() {
+
+  const navigate = useNavigate();
 
   const { id } = useParams();
   const location = useLocation();
@@ -22,6 +32,9 @@ function LessonDetails() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteCount, setFavoriteCount] = useState(0);
+  const { isAdminUser, loadingAdmin } = useAdmin();
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
   // The lesson is loaded from the Firestore database, we get the lesson with the id from the url and display its details
   useEffect(() => {
     async function loadLesson() {
@@ -76,7 +89,7 @@ function LessonDetails() {
   checkFavorite();
   }, [id]);
 
-// We handle the toggle of the favorite status of the lesson
+  // We handle the toggle of the favorite status of the lesson
   async function toggleFavorite(lessonId) {
     try {
       const user = auth.currentUser;
@@ -123,7 +136,17 @@ function LessonDetails() {
       } catch (e) {
         console.log("FAVORITE ERROR:", e);
       }
-}
+  }
+
+  // Handle the deletion of the lesson
+  async function handleDeleteLesson() {
+    try {
+      await deleteDoc(doc(db, "lessons", lesson.id));
+      navigate("/search");
+    } catch (e) {
+      console.log("DELETE LESSON ERROR:", e);
+    }
+  }
 
   // If the lesson is loading, we display a loading message, 
   // if the lesson is not found, we display a not found message, otherwise we display the lesson details
@@ -218,18 +241,56 @@ function LessonDetails() {
 
           <p className="mt-6 text-xl break-words leading-relaxed">{lesson.description}</p>
 
-          <div className="absolute bottom-0 right-0 flex items-center gap-2">
-            <button type="button" onClick={() => toggleFavorite(lesson.id)}>
-                <Bookmark
+          <div className="mt-8 flex items-center justify-between gap-4">
+            <div className={pageActions}>
+              {!loadingAdmin && isAdminUser && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/editlesson/${lesson.id}`)}
+                    className={actionBtnSecondary}
+                  >
+                    Edit lesson
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setDeleteModalOpen(true)}
+                    className={actionBtnDanger}
+                  >
+                    Delete lesson
+                  </button>
+                </>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => toggleFavorite(lesson.id)}
+                className="flex items-center gap-2"
+              >
+                 <Bookmark
                   className={`w-6 h-6 transition ${
                     isFavorite ? "fill-navy text-navy" : "text-navy"
                   }`}
                 />
+                <span className="text-xl">{favoriteCount}</span>
               </button>
-            <span className="text-xl">{favoriteCount}</span>
+
+            </div>
           </div>
         </div>
       </div>
+      <ConfirmModal
+        open={deleteModalOpen}
+        title="Delete lesson"
+        text="Are you sure you want to delete this lesson? This action cannot be undone."
+        confirmText="Delete"
+        danger
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDeleteLesson}
+      />
     </>
     
   );

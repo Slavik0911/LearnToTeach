@@ -7,6 +7,7 @@ import LessonDetails from "@/pages/LessonDetails";
 import Profile from "@/pages/profile/Profile";
 import Admin from "@/pages/admin/Admin";
 import AdminGuard from "@/pages/admin/AdminGuard";
+import EditLesson from "@/pages/admin/EditLesson";
 import LogIn from "@/pages/auth/LogIn";
 import SignUp from "@/pages/auth/SignUp";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
@@ -47,6 +48,14 @@ export default function Router() {
           element={
             <AdminGuard>
               <AddLesson />
+            </AdminGuard>
+          }
+        />
+        <Route
+          path="/editlesson/:id"
+          element={
+            <AdminGuard>
+              <EditLesson />
             </AdminGuard>
           }
         />

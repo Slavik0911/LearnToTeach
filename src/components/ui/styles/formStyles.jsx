@@ -225,3 +225,27 @@ export const modalInputError = (hasError = false) =>
 // Scrollable modal content
 export const modalContentBox =
   `mt-6 max-h-[400px] overflow-auto ${rounded2xl} bg-gray p-6`;
+
+// ============================
+// PAGE / ADMIN ACTIONS
+// ============================
+
+// Container for actions near page content
+export const pageActions =
+  "flex flex-wrap items-center gap-3";
+
+// Neutral action button
+export const actionBtn =
+  `${rounded2xl} px-4 py-2.5 text-lg font-medium ${uiTransition} hover:-translate-y-[1px] hover:shadow-lg active:scale-[0.97]`;
+
+// Light secondary action
+export const actionBtnSecondary =
+  `${actionBtn} bg-gray text-black`;
+
+// Main admin action
+export const actionBtnPrimary =
+  `${actionBtn} bg-navy text-white hover:opacity-95`;
+
+// Danger admin action
+export const actionBtnDanger =
+  `${actionBtn} bg-red-600 text-white`;

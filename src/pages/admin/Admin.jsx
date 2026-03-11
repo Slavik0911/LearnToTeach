@@ -6,12 +6,22 @@ export default function Admin() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold underline">Admin Page</h1>
-      <p>Only accessible to admins.</p>
-
-      <button className="bg-black text-white p-2 rounded" onClick={() => navigate("/addlesson")}>
-        Add lesson
+      <div className="grid grid-cols-2 gap-4">
+      <button
+        type="button"
+        onClick={() => navigate("/addlesson")}
+        className="rounded-2xl bg-navy px-5 py-3 text-2xl text-white transition-all duration-200 hover:-translate-y-[1px] hover:shadow-lg active:scale-[0.97]"
+      >
+        + Add lessons
       </button>
+      <button
+        type="button"
+        onClick={() => navigate("/search")}
+        className="rounded-2xl bg-navy px-5 py-3 text-2xl text-white transition-all duration-200 hover:-translate-y-[1px] hover:shadow-lg active:scale-[0.97]"
+      >
+        All lessons 
+      </button>
+      </div>
     </div>
   );
 }

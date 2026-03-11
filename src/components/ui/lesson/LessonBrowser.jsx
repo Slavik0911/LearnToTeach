@@ -50,7 +50,7 @@ export default function LessonBrowser({
               description={lesson.description}
               favoriteCount={lesson.favoriteCount}
               isSelectedForDelete={selectedLessonIds.includes(lesson.id)}
-              onTrashClick={() => onToggleLessonDelete?.(lesson.id)}
+              onTrashClick={onToggleLessonDelete ? () => onToggleLessonDelete(lesson.id) : undefined}
             />
           ))}
         </LessonGrid>

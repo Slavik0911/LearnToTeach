@@ -142,6 +142,7 @@ function LessonDetails() {
   if (from === "favorite-lessons") {
     breadcrumbItems = [
       { label: "Home", to: "/" },
+      { label: "Profile", to: "/profile" },
       { label: "Favorite lessons", to: "/favorite-lessons" },
       { label: lesson.title },
     ];
@@ -155,7 +156,13 @@ function LessonDetails() {
       },
       { label: lesson.title },
     ];
-  } else {
+  } else if (from === "lesson-search") {
+    breadcrumbItems = [
+      { label: "Home", to: "/" },
+      { label: "Lesson search", to: "/search" },
+      { label: lesson.title },
+    ];
+  }  else {
     breadcrumbItems = [
       { label: "Home", to: "/" },
       { label: lesson.title },

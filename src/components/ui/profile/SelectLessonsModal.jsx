@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { auth, db } from "@/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { auth } from "@/firebase";
 import { addLessonToFolder } from "@/lib/addLessonToFolder";
+import { getCollection } from "@/utils/getCollection";
 import {
   modalOverlay,
   modalPanel,
@@ -42,31 +42,14 @@ export default function SelectLessonsModal({
         setLoading(true);
 
         // Load favorite lessons
-        const favoritesRef = collection(db, "users", user.uid, "favorites");
-        const snap = await getDocs(favoritesRef);
-
-        const lessons = snap.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        setFavoriteLessons(lessons);
+        const favoriteLessonsData = await getCollection("users", user.uid, "favorites");
+        setFavoriteLessons(favoriteLessonsData);
 
         // Load folder lessons
-        const folderLessonsRef = collection(
-          db,
-          "users",
-          user.uid,
-          "folders",
-          folderId,
-          "lessons"
-        );
-
-        const folderSnap = await getDocs(folderLessonsRef);
-        const existingIds = folderSnap.docs.map((doc) => doc.id);
-
+        const folderLessons = await getCollection("users", user.uid, "folders", folderId, "lessons");
         // Set folder lesson IDs
-        setFolderLessonIds(existingIds);
+        setFolderLessonIds(folderLessons.map((l) => l.id));
+
       } catch (e) {
         console.log("LOAD FAVORITE LESSONS ERROR:", e);
       } finally {

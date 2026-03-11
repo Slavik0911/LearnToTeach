@@ -11,7 +11,8 @@ import ConfirmModal from "@/components/ui/profile/ConfirmModal";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "@/firebase";
 import { signOut, deleteUser, onAuthStateChanged  } from "firebase/auth";
-import { doc, deleteDoc, getDoc, updateDoc, collection, setDoc, getDocs, serverTimestamp } from "firebase/firestore";
+import { doc, deleteDoc, getDoc, updateDoc, collection, setDoc, serverTimestamp } from "firebase/firestore";
+import { getCollection } from "@/utils/getCollection";
 
 
 // This page is used for displaying the user's profile
@@ -38,15 +39,14 @@ export default function Profile() {
     // Load folders from Firestore
     async function loadFolders(user) {
       try {
-        const foldersSnap = await getDocs(collection(db, "users", user.uid, "folders"));
-        
-        const foldersData = foldersSnap.docs.map((folderDoc) => ({
-          id: folderDoc.id,
-          title: folderDoc.data().name,
-          value: folderDoc.data().lessonsCount ?? 0,
-        }));
+        const docs = await getCollection("users", user.uid, "folders");
 
-        setFolders(foldersData);
+        setFolders(docs.map((folderDoc) => ({ 
+          id: folderDoc.id, 
+          title: folderDoc.name, 
+          value: folderDoc.lessonsCount ?? 0 
+        })));
+
       } catch (e) {
         console.log("LOAD FOLDERS ERROR:", e);
       }
@@ -228,14 +228,12 @@ export default function Profile() {
     const user = auth.currentUser;
     if (!user || !folder) return;
 
-    const lessonsRef = collection(db, "users", user.uid, "folders", folder.id, "lessons");
-    const lessonsSnap = await getDocs(lessonsRef);
+    const lessons = await getCollection("users", user.uid, "folders", folder.id, "lessons");
 
-    const deleteLessonPromises = lessonsSnap.docs.map((lessonDoc) =>
-      deleteDoc(lessonDoc.ref)
-    );
+    // Delete all lessons in the folder
+    const deletePromises = lessons.map((l) => deleteDoc(doc(db, "users", user.uid, "folders", folder.id, "lessons", l.id)));
 
-    await Promise.all(deleteLessonPromises);
+    await Promise.all(deletePromises);
 
     await deleteDoc(doc(db, "users", user.uid, "folders", folder.id));
 

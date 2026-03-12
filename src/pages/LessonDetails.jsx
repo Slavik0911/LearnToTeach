@@ -3,6 +3,7 @@ import LevelBadge from "@/components/ui/general/LevelBadge";
 import AgeBadge from "@/components/ui/general/AgeBadge";
 import Breadcrumb from "@/components/ui/navigation/Breadcrumb";
 import useAdmin from "@/hooks/useAdmin";
+import useRecentlyWatched from "@/hooks/useRecentlyWatched";
 import ConfirmModal from "@/components/ui/profile/ConfirmModal";
 import LessonDetailsSkeleton from "@/components/ui/skeleton/LessonDetailsSkeleton";
 
@@ -35,6 +36,8 @@ function LessonDetails() {
   const [favoriteCount, setFavoriteCount] = useState(0);
   const { isAdminUser, loadingAdmin } = useAdmin();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+  useRecentlyWatched(auth.currentUser, lesson);
 
   // The lesson is loaded from the Firestore database, we get the lesson with the id from the url and display its details
   useEffect(() => {

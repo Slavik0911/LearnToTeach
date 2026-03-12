@@ -30,6 +30,7 @@ export default function Profile() {
     const [contextMenu, setContextMenu] = useState(null);
     const [editingFolder, setEditingFolder] = useState(null);
     const [deletingFolder, setDeletingFolder] = useState(null);
+    const [recentlyWatchedCount, setRecentlyWatchedCount] = useState(0);
     const [profile, setProfile] = useState({
       name: "",
       email: "",
@@ -73,6 +74,9 @@ export default function Profile() {
                 favoriteCount: data.favoriteCount || 0,
                 user: user,
               });
+
+              // recentlyWatchedCount is read from the same snap — no extra query needed
+              setRecentlyWatchedCount(data.recentlyWatchedCount ?? 0);
 
               await loadFolders(user)
               setLoadingProfile(false);
@@ -298,7 +302,7 @@ export default function Profile() {
 
             <StatGrid cols={3}>
               <StatCard title="Favorites" value={profile.favoriteCount} note="" route="/favorite-lessons" />
-              <StatCard title="Recently watched" value={35} note="" route="/recently-watched" />
+              <StatCard title="Recently watched" value={recentlyWatchedCount} note="" route="/recently-watched" />
               <StatCard title="Downloaded" value="81" note="" route="/downloaded" />
             </StatGrid>
           </div>

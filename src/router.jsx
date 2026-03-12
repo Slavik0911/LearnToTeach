@@ -15,6 +15,7 @@ import AddLesson from "@/pages/admin/AddLesson";
 import FavoriteLessons from "@/pages/profile/FavoriteLessons.jsx";
 import FolderDetails from "@/pages/profile/FolderDetails";
 import VerifyEmail from "@/pages/auth/VerifyEmail";
+import RecentlyWatched from "@/pages/profile/RecentlyWatched";
 
 // This component is responsible for defining all the routes in the application and 
 // rendering the appropriate components based on the URL
@@ -28,6 +29,7 @@ export default function Router() {
         <Route path="/lessons/:id" element={<LessonDetails />} />
         <Route path="/favorite-lessons" element={<FavoriteLessons />} />
         <Route path="/folders/:id" element={<FolderDetails />} />
+        <Route path="/recently-watched" element={<RecentlyWatched />} />
 
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<LogIn />} />

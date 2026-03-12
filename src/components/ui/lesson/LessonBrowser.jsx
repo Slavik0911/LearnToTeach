@@ -18,6 +18,7 @@ export default function LessonBrowser({
   from = "lessons",
   folderId = null,
   folderTitle = "",
+  extraConstraints = [],
 }) {
   const {
     age, setAge,
@@ -27,7 +28,7 @@ export default function LessonBrowser({
     loading,
     pageIndex, setPageIndex,
     isNext,
-  } = useLessonPaginator(collectionRef, sortField);
+  } = useLessonPaginator(collectionRef, sortField, extraConstraints);
 
   return (
     <>

@@ -14,9 +14,10 @@ const PAGE_SIZE = 15;
 
 // Custom hook for paginating lessons from a Firestore collection.
 // Accepts a collectionRef (Firestore collection reference) and a sortField (field to sort by).
+// Accepts an optional extraConstraints array for additional Firestore query filters (e.g. date range).
 // Handles search, age and level filtering, and cursor-based pagination.
 // Returns lessons, loading state, pagination controls, and filter state.
-export default function useLessonPaginator(collectionRef, sortField) {
+export default function useLessonPaginator(collectionRef, sortField, extraConstraints = []) {
     const [age, setAge] = useState("all");
     const [level, setLevel] = useState("all");
     const [lessons, setLessons] = useState([]);
@@ -56,7 +57,10 @@ export default function useLessonPaginator(collectionRef, sortField) {
         const term = search.trim().toLowerCase().replace(/^#/, "");
 
         // We build the equality filters for age and level, if the filter is "all" we don't add any filter for that field
-        const eqFilters = [];
+        // extraConstraints are added first (e.g. where("watchedAt", ">=", since24h) for recently watched)
+        const eqFilters = [
+            ...extraConstraints,
+        ];
         if (age !== "all") eqFilters.push(where("age", "==", age));
         if (level !== "all") eqFilters.push(where("level", "==", level));
 

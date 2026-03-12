@@ -1,19 +1,20 @@
 import StatCard from "@/components/ui/stats/StatCard";
 import StatGrid from "@/components/ui/stats/StatGrid";
-import { BarChart, Pencil, Trash2, Folder } from "lucide-react";
 import ProfileSidebar from "@/components/ui/profile/ProfileSidebar";
 import RenameModal from "@/components/ui/profile/RenameModal";
 import CreateFolderModal from "@/components/ui/profile/CreateFolderModal";
 import SelectLessonsModal from "@/components/ui/profile/SelectLessonsModal";
+import ProfileSkeleton from "@/components/ui/skeleton/ProfileSkeleton";
+import ConfirmModal from "@/components/ui/profile/ConfirmModal";
+import Breadcrumb from "@/components/ui/navigation/Breadcrumb";
 
 import { useState, useEffect } from "react";
-import ConfirmModal from "@/components/ui/profile/ConfirmModal";
+import { BarChart, Pencil, Trash2, Folder } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "@/firebase";
 import { signOut, deleteUser, onAuthStateChanged  } from "firebase/auth";
 import { doc, deleteDoc, getDoc, updateDoc, collection, setDoc, serverTimestamp } from "firebase/firestore";
 import { getCollection } from "@/utils/getCollection";
-import Breadcrumb from "@/components/ui/navigation/Breadcrumb";
 
 
 // This page is used for displaying the user's profile
@@ -197,53 +198,53 @@ export default function Profile() {
 
     // Rename a folder
     async function renameFolder(folder, newName) {
-    try {
-      const user = auth.currentUser;
-      if (!user || !folder) return;
+      try {
+        const user = auth.currentUser;
+        if (!user || !folder) return;
 
-      const newValue = await updateName(
-        doc(db, "users", user.uid, "folders", folder.id),
-        newName
-      );
+        const newValue = await updateName(
+          doc(db, "users", user.uid, "folders", folder.id),
+          newName
+        );
 
-      if (!newValue) return;
+        if (!newValue) return;
 
-      // Update the folder name in the folders array without mutating the original array
-      setFolders((prev) =>
-        prev.map((item) =>
-          item.id === folder.id
-            ? { ...item, title: newValue }
-            : item
-        )
-      );
+        // Update the folder name in the folders array without mutating the original array
+        setFolders((prev) =>
+          prev.map((item) =>
+            item.id === folder.id
+              ? { ...item, title: newValue }
+              : item
+          )
+        );
 
-      setEditingFolder(null);
-    } catch (e) {
-      console.log("RENAME FOLDER ERROR:", e);
-    }
+        setEditingFolder(null);
+      } catch (e) {
+        console.log("RENAME FOLDER ERROR:", e);
+      }
   }
   
   // Delete a folder
   async function deleteFolder(folder) {
-  try {
-    const user = auth.currentUser;
-    if (!user || !folder) return;
+    try {
+      const user = auth.currentUser;
+      if (!user || !folder) return;
 
-    const lessons = await getCollection("users", user.uid, "folders", folder.id, "lessons");
+      const lessons = await getCollection("users", user.uid, "folders", folder.id, "lessons");
 
-    // Delete all lessons in the folder
-    const deletePromises = lessons.map((l) => deleteDoc(doc(db, "users", user.uid, "folders", folder.id, "lessons", l.id)));
+      // Delete all lessons in the folder
+      const deletePromises = lessons.map((l) => deleteDoc(doc(db, "users", user.uid, "folders", folder.id, "lessons", l.id)));
 
-    await Promise.all(deletePromises);
+      await Promise.all(deletePromises);
 
-    await deleteDoc(doc(db, "users", user.uid, "folders", folder.id));
+      await deleteDoc(doc(db, "users", user.uid, "folders", folder.id));
 
-    setFolders((prev) => prev.filter((item) => item.id !== folder.id));
-    setDeletingFolder(null);
-  } catch (e) {
-    console.log("DELETE FOLDER ERROR:", e);
+      setFolders((prev) => prev.filter((item) => item.id !== folder.id));
+      setDeletingFolder(null);
+    } catch (e) {
+      console.log("DELETE FOLDER ERROR:", e);
+    }
   }
-}
 
 
   // Close the context menu when clicking outside
@@ -261,7 +262,7 @@ export default function Profile() {
 
 
   // If the profile is still loading, we display a loading message
-  if (loadingProfile) return <div>Loading...</div>;
+  if (loadingProfile) return <ProfileSkeleton />;
 
   // We use the confirm state to control the display of the confirm modal, 
   // when the user clicks on sign out or delete, we set the confirm state with the type of action,

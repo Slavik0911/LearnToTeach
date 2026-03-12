@@ -4,6 +4,7 @@ import AgeBadge from "@/components/ui/general/AgeBadge";
 import Breadcrumb from "@/components/ui/navigation/Breadcrumb";
 import useAdmin from "@/hooks/useAdmin";
 import ConfirmModal from "@/components/ui/profile/ConfirmModal";
+import LessonDetailsSkeleton from "@/components/ui/skeleton/LessonDetailsSkeleton";
 
 import { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
@@ -150,7 +151,9 @@ function LessonDetails() {
 
   // If the lesson is loading, we display a loading message, 
   // if the lesson is not found, we display a not found message, otherwise we display the lesson details
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return <LessonDetailsSkeleton />;
+  }
   if (notFound) return <div>Lesson not found</div>;
   if (!lesson) return null;
 
@@ -191,6 +194,8 @@ function LessonDetails() {
       { label: lesson.title },
     ];
   }
+
+  
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />

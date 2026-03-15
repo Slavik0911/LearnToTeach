@@ -36,6 +36,7 @@ export default function Profile() {
       email: "",
       plan: "",
       favoriteCount: 0,
+      purchasedCount: 0,
       user: null,
     });
     
@@ -72,6 +73,7 @@ export default function Profile() {
                 email: data.email || user.email || "",
                 plan: "free",
                 favoriteCount: data.favoriteCount || 0,
+                purchasedCount: data.purchasedCount || 0,
                 user: user,
               });
 
@@ -86,6 +88,7 @@ export default function Profile() {
                 email: user.email || "",
                 plan: user.plan || "free",
                 favoriteCount: user.favoriteCount || 0,
+                purchasedCount: user.purchasedCount || 0,
                 user: user,
               });
               setLoadingProfile(false);
@@ -303,7 +306,7 @@ export default function Profile() {
             <StatGrid cols={3}>
               <StatCard title="Favorites" value={profile.favoriteCount} note="" route="/favorite-lessons" />
               <StatCard title="Recently watched" value={recentlyWatchedCount} note="" route="/recently-watched" />
-              <StatCard title="Downloaded" value="81" note="" route="/downloaded" />
+              <StatCard title="Purchased" value={profile.purchasedCount} note="" route="/purchased" />
             </StatGrid>
           </div>
 

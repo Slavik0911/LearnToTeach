@@ -6,6 +6,7 @@ import useAdmin from "@/hooks/useAdmin";
 import useRecentlyWatched from "@/hooks/useRecentlyWatched";
 import ConfirmModal from "@/components/ui/profile/ConfirmModal";
 import LessonDetailsSkeleton from "@/components/ui/skeleton/LessonDetailsSkeleton";
+import { purchaseLesson } from "@/lib/purchaseLesson";
 
 import { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
@@ -34,6 +35,7 @@ function LessonDetails() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteCount, setFavoriteCount] = useState(0);
+  const [isPurchased, setIsPurchased] = useState(false);
   const { isAdminUser, loadingAdmin } = useAdmin();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
@@ -142,6 +144,44 @@ function LessonDetails() {
       }
   }
 
+  // Check if the lesson is purchased
+  useEffect(() => {
+    async function checkPurchased() {
+      try {
+        const user = auth.currentUser;
+
+        if (!user || !id) {
+          setIsPurchased(false);
+          return;
+        }
+
+        const purchasedRef = doc(db, "users", user.uid, "purchasedLessons", id);
+        const purchasedSnap = await getDoc(purchasedRef);
+
+        setIsPurchased(purchasedSnap.exists());
+      } catch (e) {
+        console.log("CHECK PURCHASED ERROR:", e);
+      }
+    }
+
+    checkPurchased();
+  }, [id]);
+
+  // Handle the purchase of the lesson
+  async function handleBuyLesson() {
+    try {
+      const uid = auth.currentUser?.uid;
+      if (!uid || !id || !lesson) return;
+
+      const wasPurchased = await purchaseLesson(uid, id, lesson);
+
+      if (wasPurchased) {
+        setIsPurchased(true);
+      }
+    } catch (e) {
+      console.log("PURCHASE LESSON ERROR:", e);
+    }
+  }
   // Handle the deletion of the lesson
   async function handleDeleteLesson() {
     try {
@@ -191,14 +231,22 @@ function LessonDetails() {
       { label: "Lesson search", to: "/search" },
       { label: lesson.title },
     ];
-  }  else {
+  }else if(from === "purchased"){
+    breadcrumbItems = [
+      { label: "Home", to: "/" },
+      { label: "Profile", to: "/profile" },
+      { label: "Purchased", to: "/purchased" },
+      { label: lesson.title },
+    ];
+  }
+  else {
     breadcrumbItems = [
       { label: "Home", to: "/" },
       { label: lesson.title },
     ];
   }
 
-  
+  // TODO: Add proper styling for the lesson details page
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
@@ -246,7 +294,21 @@ function LessonDetails() {
 
             <span className="text-3xl">#{String(lesson.topic).toUpperCase()}</span>
           </div>
+          {lesson.isPremium && !isPurchased && (
+            <button
+              type="button"
+              onClick={handleBuyLesson}
+              className="rounded-2xl bg-navy px-6 py-3 text-xl text-white transition-all duration-300 hover:opacity-95 active:scale-[0.99]"
+            >
+              Buy lesson
+            </button>
+          )}
 
+          {lesson.isPremium && isPurchased && (
+            <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-green-100 px-4 py-2 text-lg font-medium text-green-700">
+              ✓ Purchased
+            </div>
+          )}
           <p className="mt-6 text-xl break-words leading-relaxed">{lesson.description}</p>
 
           <div className="mt-8 flex items-center justify-between gap-4">

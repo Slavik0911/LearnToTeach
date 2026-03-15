@@ -8,13 +8,14 @@ import {
   formTextarea,
   selectButton,
   levelButton,
-  saveButton,
   imageCard,
   imagePreview,
   imageOverlay,
   imageDeleteBtn,
   imageAddButton,
   plusIcon,
+  lessonSaveButton,
+  lessonPremiumButton,
 } from "@/components/ui/styles/formStyles";
 
 export default function LessonForm({
@@ -37,6 +38,7 @@ export default function LessonForm({
   const [description, setDescription] = useState("");
   const [age, setAge] = useState("");
   const [level, setLevel] = useState("");
+  const [isPremium, setIsPremium] = useState(false);
 
   // Fill form when editing an existing lesson
   useEffect(() => {
@@ -48,6 +50,7 @@ export default function LessonForm({
     setAge(initialData.age || "");
     setLevel(initialData.level || "");
     setImages((initialData.images || []).map((url) => ({ url })));
+    setIsPremium(initialData.isPremium || false);
   }, [initialData]);
 
   // Handle file selection and update the images state
@@ -158,6 +161,7 @@ export default function LessonForm({
         age,
         level,
         images: finalUrls,
+        isPremium
       };
 
 
@@ -177,6 +181,7 @@ export default function LessonForm({
         await setDoc(doc(db, "lessons", slug), {
           ...lessonData,
           favoriteCount: 0,
+          purchaseCount: 0,
           createdAt: serverTimestamp(),
         });
 
@@ -334,20 +339,30 @@ export default function LessonForm({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={isSaving}
-          className={saveButton}
-        >
-          {isSaving
-            ? mode === "edit"
-              ? "Saving changes..."
-              : "Saving..."
-            : mode === "edit"
-            ? "Save changes"
-            : "Save"}
-        </button>
+        <div className="mt-4 grid grid-cols-3 gap-4">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isSaving}
+            className={`${lessonSaveButton} col-span-2`}
+          >
+            {isSaving
+              ? mode === "edit"
+                ? "Saving changes..."
+                : "Saving..."
+              : mode === "edit"
+              ? "Save changes"
+              : "Save"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsPremium((prev) => !prev)}
+            className={lessonPremiumButton(isPremium)}
+          >
+            {isPremium ? "Premium" : "Free"}
+          </button>
+        </div>
 
         {errors.save && (
           <p className="mt-3 text-center text-lg text-red-500">

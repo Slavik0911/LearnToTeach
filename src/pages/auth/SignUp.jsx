@@ -36,6 +36,9 @@ export default function SignUp() {
         name: name.trim(),
         role: "user",
         plan: "free",
+        favoriteCount: 0,
+        recentlyWatchedCount: 0,
+        purchasedCount: 0,
         createdAt: serverTimestamp(),
       });
       // Navigate to verify email page

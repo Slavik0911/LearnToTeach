@@ -101,6 +101,19 @@ export const formTextarea = (hasError = false) =>
   `${formFieldBase} p-5 w-full mb-4 text-xl resize-none ${
     hasError ? "border-red-500" : "border-transparent"
   }`;
+  // Bottom action buttons in lesson form
+export const lessonBottomButtonBase =
+  `h-20 w-full ${rounded2xl} flex items-center justify-center text-2xl border-2 border-transparent ${uiTransition} hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.99] disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none`;
+
+export const lessonSaveButton =
+  `${lessonBottomButtonBase} bg-navy text-white hover:opacity-95`;
+
+export const lessonPremiumButton = (isActive = false) =>
+  `${lessonBottomButtonBase} ${
+    isActive
+      ? "bg-lightblue text-black"
+      : "bg-gray text-black hover:bg-lightblue/70"
+  }`;
 
 
 // ============================

@@ -101,7 +101,8 @@ export const formTextarea = (hasError = false) =>
   `${formFieldBase} p-5 w-full mb-4 text-xl resize-none ${
     hasError ? "border-red-500" : "border-transparent"
   }`;
-  // Bottom action buttons in lesson form
+
+// Bottom action buttons in lesson form
 export const lessonBottomButtonBase =
   `h-20 w-full ${rounded2xl} flex items-center justify-center text-2xl border-2 border-transparent ${uiTransition} hover:-translate-y-0.5 hover:shadow-xl active:scale-[0.99] disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none`;
 
@@ -181,7 +182,6 @@ export const imageAddButton = (hasError = false) =>
 export const plusIcon =
   "transition-transform duration-300 hover:rotate-90";
 
-
 // Save button used in admin panels
 export const saveButton =
   `mt-4 w-full ${rounded2xl} bg-navy p-4 text-2xl text-white ${uiTransition} hover:-translate-y-0.5 hover:shadow-xl hover:opacity-95 active:scale-[0.99] disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none`;
@@ -239,6 +239,7 @@ export const modalInputError = (hasError = false) =>
 export const modalContentBox =
   `mt-6 max-h-[400px] overflow-auto ${rounded2xl} bg-gray p-6`;
 
+
 // ============================
 // PAGE / ADMIN ACTIONS
 // ============================
@@ -262,3 +263,19 @@ export const actionBtnPrimary =
 // Danger admin action
 export const actionBtnDanger =
   `${actionBtn} bg-red-600 text-white`;
+
+
+// ============================
+// LESSON TYPE SELECTOR (LessonForm)
+// ============================
+
+// Grid wrapper for the lesson type button row in LessonForm
+export const lessonTypeGrid =
+  `grid grid-cols-4 gap-4 mb-4`;
+
+// Single lesson type toggle button
+export const lessonTypeButton = (isActive = false, hasError = false) =>
+  `${rounded2xl} p-4 w-full text-xl ${uiBorder} ${uiTransition}
+   hover:scale-[1.02] active:scale-[0.99]
+   ${hasError ? "border-red-500" : "border-transparent"}
+   ${isActive ? "bg-lightblue shadow-md" : "bg-gray hover:bg-lightblue/70 hover:shadow-md"}`;

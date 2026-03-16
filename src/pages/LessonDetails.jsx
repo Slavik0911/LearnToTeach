@@ -1,25 +1,20 @@
-import { Bookmark } from "lucide-react";
-import LevelBadge from "@/components/ui/general/LevelBadge";
-import AgeBadge from "@/components/ui/general/AgeBadge";
 import Breadcrumb from "@/components/ui/navigation/Breadcrumb";
 import useAdmin from "@/hooks/useAdmin";
 import useRecentlyWatched from "@/hooks/useRecentlyWatched";
 import ConfirmModal from "@/components/ui/profile/ConfirmModal";
 import LessonDetailsSkeleton from "@/components/ui/skeleton/LessonDetailsSkeleton";
+import LessonDetailsLayout from "@/components/ui/lesson/details/LessonDetailsLayout";
+import LessonTypeRenderer from "@/components/ui/lesson/details/LessonTypeRenderer";
 import { purchaseLesson } from "@/lib/purchaseLesson";
 
 import { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { auth, db } from "@/firebase";
-import { doc, getDoc, setDoc, deleteDoc,  updateDoc, increment, serverTimestamp} from "firebase/firestore";
+import { doc, getDoc, setDoc, deleteDoc, updateDoc, increment, serverTimestamp } from "firebase/firestore";
 
-import {
-  pageActions,
-  actionBtnSecondary,
-  actionBtnDanger,
-} from "@/components/ui/styles/formStyles";
-
-// This page is used for displaying the details of a lesson
+// This page is used for displaying the details of a lesson.
+// It only handles data fetching and business logic.
+// All UI is delegated to LessonDetailsLayout + LessonTypeRenderer.
 function LessonDetails() {
 
   const navigate = useNavigate();
@@ -47,7 +42,7 @@ function LessonDetails() {
       setLoading(true);
       setNotFound(false);
 
-      const ref = doc(db, "lessons", id);    
+      const ref = doc(db, "lessons", id);
       const snap = await getDoc(ref);
 
       // If the lesson does not exist, we set the notFound state to true and the lesson state to null, otherwise we set the lesson state with the loaded lesson and the currentIndex state to 0
@@ -69,30 +64,30 @@ function LessonDetails() {
     loadLesson();
   }, [id]);
 
-  // We check if the lesson is in the user's favorites, 
+  // We check if the lesson is in the user's favorites,
   // we get the favorite document for the lesson and set the isFavorite state accordingly
   useEffect(() => {
-  async function checkFavorite() {
-    try {
-      const user = auth.currentUser;
+    async function checkFavorite() {
+      try {
+        const user = auth.currentUser;
 
-      if (!user || !id) {
-        setIsFavorite(false);
-        return;
+        if (!user || !id) {
+          setIsFavorite(false);
+          return;
+        }
+
+        // We check if there is a document in the "favorites" subcollection of the user with the id of the lesson,
+        // if it exists, it means that the lesson is in the user's favorites
+        const favoriteRef = doc(db, "users", user.uid, "favorites", id);
+        const favoriteSnap = await getDoc(favoriteRef);
+
+        setIsFavorite(favoriteSnap.exists());
+      } catch (e) {
+        console.log("CHECK FAVORITE ERROR:", e);
       }
-
-      // We check if there is a document in the "favorites" subcollection of the user with the id of the lesson, 
-      // if it exists, it means that the lesson is in the user's favorites
-      const favoriteRef = doc(db, "users", user.uid, "favorites", id);
-      const favoriteSnap = await getDoc(favoriteRef);
-
-      setIsFavorite(favoriteSnap.exists());
-    } catch (e) {
-      console.log("CHECK FAVORITE ERROR:", e);
     }
-  }
 
-  checkFavorite();
+    checkFavorite();
   }, [id]);
 
   // We handle the toggle of the favorite status of the lesson
@@ -105,7 +100,7 @@ function LessonDetails() {
         return;
       }
 
-      // We check if the lesson is already in the user's favorites, 
+      // We check if the lesson is already in the user's favorites,
       // if it is, we remove it from the favorites and decrement the saved count of the lesson,
       const favoriteRef = doc(db, "users", user.uid, "favorites", lessonId);
       const lessonRef = doc(db, "lessons", lessonId);
@@ -120,28 +115,28 @@ function LessonDetails() {
         setFavoriteCount((prev) => Math.max(prev - 1, 0));
         console.log("Removed from favorites");
       } else {
-          await setDoc(favoriteRef, {
-            lessonId,
-            title: lesson.title,
-            title_lc: lesson.title.toLowerCase(),
-            topic: lesson.topic,
-            topic_lc: lesson.topic.toLowerCase(),
-            description: lesson.description,
-            age: lesson.age,
-            level: lesson.level,
-            savedAt: serverTimestamp(),
-          });
+        await setDoc(favoriteRef, {
+          lessonId,
+          title: lesson.title,
+          title_lc: lesson.title.toLowerCase(),
+          topic: lesson.topic,
+          topic_lc: lesson.topic.toLowerCase(),
+          description: lesson.description,
+          age: lesson.age,
+          level: lesson.level,
+          savedAt: serverTimestamp(),
+        });
 
-          await updateDoc(lessonRef, { favoriteCount: increment(1) });
-          await updateDoc(userRef, { favoriteCount: increment(1) });
+        await updateDoc(lessonRef, { favoriteCount: increment(1) });
+        await updateDoc(userRef, { favoriteCount: increment(1) });
 
-          setIsFavorite(true);
-          setFavoriteCount((prev) => prev + 1);
-          console.log("Added to favorites");
-        }
-      } catch (e) {
-        console.log("FAVORITE ERROR:", e);
+        setIsFavorite(true);
+        setFavoriteCount((prev) => prev + 1);
+        console.log("Added to favorites");
       }
+    } catch (e) {
+      console.log("FAVORITE ERROR:", e);
+    }
   }
 
   // Check if the lesson is purchased
@@ -182,6 +177,7 @@ function LessonDetails() {
       console.log("PURCHASE LESSON ERROR:", e);
     }
   }
+
   // Handle the deletion of the lesson
   async function handleDeleteLesson() {
     try {
@@ -192,19 +188,13 @@ function LessonDetails() {
     }
   }
 
-  // If the lesson is loading, we display a loading message, 
+  // If the lesson is loading, we display a loading message,
   // if the lesson is not found, we display a not found message, otherwise we display the lesson details
   if (loading) {
     return <LessonDetailsSkeleton />;
   }
   if (notFound) return <div>Lesson not found</div>;
   if (!lesson) return null;
-
-  // We get the images of the lesson and the main image is the one with the currentIndex, 
-  // if there are no images, the main image is null, we also make sure that the currentIndex is not out of bounds
-  const images = lesson.images ?? [];
-  const safeIndex = Math.min(currentIndex, Math.max(images.length - 1, 0));
-  const mainImg = images[safeIndex];
 
   let breadcrumbItems;
   // Determine breadcrumb items based on source
@@ -231,14 +221,14 @@ function LessonDetails() {
       { label: "Lesson search", to: "/search" },
       { label: lesson.title },
     ];
-  }else if(from === "purchased"){
+  } else if (from === "purchased") {
     breadcrumbItems = [
       { label: "Home", to: "/" },
       { label: "Profile", to: "/profile" },
       { label: "Purchased", to: "/purchased" },
       { label: lesson.title },
     ];
-  }
+  } 
   else {
     breadcrumbItems = [
       { label: "Home", to: "/" },
@@ -246,112 +236,28 @@ function LessonDetails() {
     ];
   }
 
-  // TODO: Add proper styling for the lesson details page
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
-      <div className="grid grid-cols-[1.25fr_1fr] gap-10">
-        
-        <div className="w-full">
-          <div className="bg-gray rounded-xl overflow-hidden h-[460px]">
-            {mainImg ? (
-              <img
-                src={mainImg}
-                alt="lesson"
-                className="w-full h-full object-cover"
-              />
-            ) : null}
-          </div>
 
-          <div className="grid grid-cols-4 gap-6 mt-6">
-            {images.slice(0, 4).map((img, i) => (
-              <button
-                key={img}
-                type="button"
-                onClick={() => setCurrentIndex(i)}
-                className={`rounded-lg overflow-hidden aspect-[4/3] border-2 transition ${
-                  safeIndex === i ? "border-navy" : "border-transparent"
-                }`}
-                title={`Open image ${i + 1}`}
-              >
-                <img
-                  src={img}
-                  alt={`thumb-${i + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              </button>
-            ))}
-          </div>
-        </div>
+      <LessonDetailsLayout
+        lesson={lesson}
+        isPurchased={isPurchased}
+        isFavorite={isFavorite}
+        favoriteCount={favoriteCount}
+        isAdminUser={isAdminUser}
+        loadingAdmin={loadingAdmin}
+        currentIndex={currentIndex}
+        onSetIndex={setCurrentIndex}
+        onToggleFavorite={() => toggleFavorite(lesson.id)}
+        onBuyLesson={handleBuyLesson}
+        onEdit={() => navigate(`/editlesson/${lesson.id}`)}
+        onDelete={() => setDeleteModalOpen(true)}
+      >
+        {/* Type-specific content is rendered here based on lesson.lessonType */}
+        <LessonTypeRenderer lesson={lesson} />
+      </LessonDetailsLayout>
 
-        <div className="relative pb-12 min-w-0">
-          <h1 className="text-4xl font-medium break-words">{lesson.title}</h1>
-
-          <div className="flex flex-wrap items-center gap-3 mt-4">
-            <AgeBadge age={lesson.age} />
-
-            <LevelBadge level={lesson.level} />
-
-            <span className="text-3xl">#{String(lesson.topic).toUpperCase()}</span>
-          </div>
-          {lesson.isPremium && !isPurchased && (
-            <button
-              type="button"
-              onClick={handleBuyLesson}
-              className="rounded-2xl bg-navy px-6 py-3 text-xl text-white transition-all duration-300 hover:opacity-95 active:scale-[0.99]"
-            >
-              Buy lesson
-            </button>
-          )}
-
-          {lesson.isPremium && isPurchased && (
-            <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-green-100 px-4 py-2 text-lg font-medium text-green-700">
-              ✓ Purchased
-            </div>
-          )}
-          <p className="mt-6 text-xl break-words leading-relaxed">{lesson.description}</p>
-
-          <div className="mt-8 flex items-center justify-between gap-4">
-            <div className={pageActions}>
-              {!loadingAdmin && isAdminUser && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => navigate(`/editlesson/${lesson.id}`)}
-                    className={actionBtnSecondary}
-                  >
-                    Edit lesson
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setDeleteModalOpen(true)}
-                    className={actionBtnDanger}
-                  >
-                    Delete lesson
-                  </button>
-                </>
-              )}
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => toggleFavorite(lesson.id)}
-                className="flex items-center gap-2"
-              >
-                 <Bookmark
-                  className={`w-6 h-6 transition ${
-                    isFavorite ? "fill-navy text-navy" : "text-navy"
-                  }`}
-                />
-                <span className="text-xl">{favoriteCount}</span>
-              </button>
-
-            </div>
-          </div>
-        </div>
-      </div>
       <ConfirmModal
         open={deleteModalOpen}
         title="Delete lesson"
@@ -362,7 +268,6 @@ function LessonDetails() {
         onConfirm={handleDeleteLesson}
       />
     </>
-    
   );
 }
 

@@ -7,7 +7,6 @@ import {
   setDoc,
   getDocs,
   deleteDoc,
-  updateDoc,
   increment,
   serverTimestamp,
   query,
@@ -21,8 +20,7 @@ const MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
 export default function useRecentlyWatched(user, lesson) {
   useEffect(() => {
     if (!user?.uid || !lesson?.id) return;
-    track();
-  }, [user?.uid, lesson?.id]);
+
     async function track() {
       try {
         const uid = user.uid;
@@ -50,13 +48,15 @@ export default function useRecentlyWatched(user, lesson) {
 
         // If lesson is new — increment counter
         if (isNew) {
-          await updateDoc(userRef, { recentlyWatchedCount: increment(1) });
+          await setDoc(
+            userRef,
+            { recentlyWatchedCount: increment(1) },
+            { merge: true }
+          );
         }
 
         // Fetch all docs sorted by watchedAt desc for cleanup
-        const snap = await getDocs(
-          query(colRef, orderBy("watchedAt", "desc"))
-        );
+        const snap = await getDocs(query(colRef, orderBy("watchedAt", "desc")));
 
         const now = Date.now();
         const deletePromises = [];
@@ -74,18 +74,20 @@ export default function useRecentlyWatched(user, lesson) {
           }
         });
 
-        if (deletePromises.length) {
+        if (deletePromises.length > 0) {
           await Promise.all(deletePromises);
           // Decrement counter by number of deleted items
-          await updateDoc(userRef, {
-            recentlyWatchedCount: increment(-deletedCount),
-          });
+          await setDoc(
+            userRef,
+            { recentlyWatchedCount: increment(-deletedCount) },
+            { merge: true }
+          );
         }
       } catch (e) {
         console.error("useRecentlyWatched error:", e);
       }
     }
 
-    
-  
+    track();
+  }, [user?.uid, lesson?.id]);
 }

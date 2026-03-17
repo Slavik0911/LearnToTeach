@@ -1,7 +1,8 @@
-import { Bookmark } from "lucide-react";
+import { Bookmark, LockOpen } from "lucide-react";
 import AgeBadge from "@/components/ui/general/AgeBadge";
 import LevelBadge from "@/components/ui/general/LevelBadge";
 import LessonTypeBadge from "@/components/ui/lesson/LessonTypeBadge";
+import LessonMaterials from "@/components/ui/lesson/LessonMaterials";
 import {
   pageActions,
   actionBtnSecondary,
@@ -67,11 +68,10 @@ export default function LessonDetailsLayout({
             {lesson.title}
           </h1>
 
-          {lesson.isPremium && (
-            <span className="mt-1 rounded-lg bg-yellow-100 px-2.5 py-1 sm:px-3 text-xs sm:text-sm font-medium text-yellow-700">
-              Premium
-            </span>
-          )}
+          
+            {lesson.isPremium && isPurchased && (
+              <LockOpen className="w-5 h-5 sm:w-6 sm:h-6 " />
+            )}
         </div>
 
         {/* Shared meta: age, level, topic, type badge */}
@@ -82,27 +82,13 @@ export default function LessonDetailsLayout({
           <LessonTypeBadge type={lesson.lessonType} />
         </div>
 
-        {/* Purchase button / purchased badge */}
-        {lesson.isPremium && !isPurchased && (
-          <button
-            type="button"
-            onClick={onBuyLesson}
-            className="mt-4 sm:mt-5 w-full sm:w-auto rounded-2xl bg-navy px-5 sm:px-6 py-2.5 sm:py-3 text-lg sm:text-xl text-white transition-all duration-300 hover:opacity-95 active:scale-[0.99]"
-          >
-            Buy lesson
-          </button>
-        )}
-
-        {lesson.isPremium && isPurchased && (
-          <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-green-100 px-3 sm:px-4 py-1.5 sm:py-2 text-base sm:text-lg font-medium text-green-700">
-            ✓ Purchased
-          </div>
-        )}
-
         {/* Type-specific content slot */}
         <div className="mt-5 sm:mt-6">
           {children}
         </div>
+
+        {/* Lesson materials OR Buy button */}
+        <LessonMaterials lesson={lesson} isPurchased={isPurchased} onBuyLesson={onBuyLesson} />
 
         {/* Admin actions + favorite */}
         <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

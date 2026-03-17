@@ -14,13 +14,6 @@ export default function StandardLessonContent({ lesson }) {
         </div>
       )}
 
-      {/* Title */}
-      {lesson.title && (
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 break-words">
-          {lesson.title}
-        </h2>
-      )}
-
       {/* Description */}
       <p className="text-base sm:text-lg md:text-xl break-words leading-relaxed text-gray-700">
         {lesson.description}

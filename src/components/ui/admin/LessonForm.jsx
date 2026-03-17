@@ -61,6 +61,12 @@ export default function LessonForm({
   const [ruleFocus, setRuleFocus] = useState("");
   const [exercisesCount, setExercisesCount] = useState("");
 
+  // State variables for lesson materials
+  const [studentVersion, setStudentVersion] = useState("");
+  const [teacherVersion, setTeacherVersion] = useState("");
+  const [presentationUrl, setPresentationUrl] = useState("");
+  const [worksheetsUrl, setWorksheetsUrl] = useState("");
+
   // Fill form when editing an existing lesson
   useEffect(() => {
     if (!initialData) return;
@@ -90,6 +96,12 @@ export default function LessonForm({
     setGrammarTopic(initialData.grammarTopic || "");
     setRuleFocus(initialData.ruleFocus || "");
     setExercisesCount(initialData.exercisesCount || "");
+
+    // Fill Materials fields
+    setStudentVersion(initialData.studentVersion || "");
+    setTeacherVersion(initialData.teacherVersion || "");
+    setPresentationUrl(initialData.presentationUrl || "");
+    setWorksheetsUrl(initialData.worksheetsUrl || "");
   }, [initialData]);
 
   // Handle file selection and update the images state
@@ -218,7 +230,7 @@ export default function LessonForm({
         })
       );
 
-      // Prepare lesson data — base fields + type-specific fields
+      // Prepare lesson data — base fields + type-specific fields + materials
       const lessonData = {
         title: title.trim(),
         title_lc: title.trim().toLowerCase(),
@@ -231,6 +243,11 @@ export default function LessonForm({
         isPremium,
         lessonType,
         ...buildTypeFields(),
+        // Materials URLs (optional)
+        studentVersion: studentVersion.trim() || null,
+        teacherVersion: teacherVersion.trim() || null,
+        presentationUrl: presentationUrl.trim() || null,
+        worksheetsUrl: worksheetsUrl.trim() || null,
       };
 
       // Update existing lesson
@@ -301,7 +318,8 @@ export default function LessonForm({
 
           {images.length < 4 && (
             <button type="button" onClick={openFilePicker} className={imageAddButton(errors.images)}>
-              <Plus size={80} sm:size={120} className={plusIcon} />
+              <Plus size={80} className="sm:hidden" />
+              <Plus size={120} className="hidden sm:block" />
             </button>
           )}
         </div>
@@ -319,6 +337,41 @@ export default function LessonForm({
           <button type="button" onClick={() => setIsPremium((prev) => !prev)} className={lessonPremiumButton(isPremium)}>
             {isPremium ? "Premium" : "Free"}
           </button>
+        </div>
+
+        {/* Materials section - URLs for downloadable files */}
+        <div className="mt-2 pt-4 border-t border-gray-200">
+          <p className="text-sm sm:text-base font-medium text-gray-700 mb-3">Materials (optional)</p>
+          <div className="flex flex-col gap-2 sm:gap-3">
+            <input 
+              value={studentVersion} 
+              onChange={(e) => setStudentVersion(e.target.value)} 
+              type="text" 
+              placeholder="Student's version URL" 
+              className={formInput(false)} 
+            />
+            <input 
+              value={teacherVersion} 
+              onChange={(e) => setTeacherVersion(e.target.value)} 
+              type="text" 
+              placeholder="Teacher's version URL" 
+              className={formInput(false)} 
+            />
+            <input 
+              value={presentationUrl} 
+              onChange={(e) => setPresentationUrl(e.target.value)} 
+              type="text" 
+              placeholder="Online presentation URL" 
+              className={formInput(false)} 
+            />
+            <input 
+              value={worksheetsUrl} 
+              onChange={(e) => setWorksheetsUrl(e.target.value)} 
+              type="text" 
+              placeholder="Worksheets URL" 
+              className={formInput(false)} 
+            />
+          </div>
         </div>
 
         {errors.save && (

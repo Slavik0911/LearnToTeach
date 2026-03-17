@@ -271,7 +271,7 @@ export const actionBtnDanger =
 
 // Grid wrapper for the lesson type button row in LessonForm
 export const lessonTypeGrid =
-  `grid grid-cols-4 gap-4 mb-4`;
+  `grid grid-cols-2 md:grid-cols-4 gap-4 mb-4`;
 
 // Single lesson type toggle button
 export const lessonTypeButton = (isActive = false, hasError = false) =>

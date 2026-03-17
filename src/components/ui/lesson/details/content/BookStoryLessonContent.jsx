@@ -1,43 +1,62 @@
 // Content block for lessonType: "book-story"
-// Shows description + book specific fields: bookTitle, author, storyType, themes.
+// Shows image, title, description + book specific fields: bookTitle, author, storyType, themes.
 export default function BookStoryLessonContent({ lesson }) {
   return (
-    <div className="space-y-5">
-      <p className="text-xl break-words leading-relaxed text-gray-700">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Image - full width on mobile, responsive on larger screens */}
+      {(lesson.image || lesson.photo) && (
+        <div className="w-full">
+          <img
+            src={lesson.image || lesson.photo}
+            alt={lesson.title || 'Lesson image'}
+            className="w-full h-auto rounded-lg object-cover"
+          />
+        </div>
+      )}
+
+      {/* Title */}
+      {lesson.title && (
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 break-words">
+          {lesson.title}
+        </h2>
+      )}
+
+      {/* Description with responsive text sizing */}
+      <p className="text-base sm:text-lg md:text-xl break-words leading-relaxed text-gray-700">
         {lesson.description}
       </p>
 
-      {/* Book title, author and story type as inline rows */}
-      <div className="flex flex-col gap-1">
+      {/* Book title, author and story type - responsive grid */}
+      <div className="flex flex-col gap-2 sm:gap-3">
         {lesson.bookTitle && (
-          <p className="text-lg">
+          <p className="text-sm sm:text-base md:text-lg">
             <span className="text-gray-500 mr-2">Book</span>
-            <span className="font-medium">{lesson.bookTitle}</span>
+            <span className="font-medium break-words">{lesson.bookTitle}</span>
           </p>
         )}
         {lesson.author && (
-          <p className="text-lg">
+          <p className="text-sm sm:text-base md:text-lg">
             <span className="text-gray-500 mr-2">Author</span>
-            <span className="font-medium">{lesson.author}</span>
+            <span className="font-medium break-words">{lesson.author}</span>
           </p>
         )}
         {lesson.storyType && (
-          <p className="text-lg">
+          <p className="text-sm sm:text-base md:text-lg">
             <span className="text-gray-500 mr-2">Type</span>
             <span className="font-medium">{lesson.storyType}</span>
           </p>
         )}
       </div>
 
-      {/* Themes / moral */}
+      {/* Themes / moral - responsive tags */}
       {lesson.themes?.length > 0 && (
         <div>
-          <p className="mb-2 text-lg font-medium">Themes</p>
-          <div className="flex flex-wrap gap-2">
+          <p className="mb-2 sm:mb-3 text-base sm:text-lg font-medium">Themes</p>
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {lesson.themes.map((theme, i) => (
               <span
                 key={i}
-                className="rounded-full bg-amber-100 px-3 py-1 text-sm text-amber-700 border border-amber-200"
+                className="rounded-full bg-amber-100 px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm text-amber-700 border border-amber-200"
               >
                 {theme}
               </span>

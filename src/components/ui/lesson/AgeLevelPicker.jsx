@@ -45,7 +45,7 @@ export default function AgeLevelPicker({
         ))}
       </div>
 
-      <div className="grid grid-cols-6 gap-4">
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
         {LEVELS.map((l) => (
           <button
             key={l}

@@ -268,15 +268,15 @@ export default function LessonForm({
   // bottomExtra renders below images (for book-story and grammar)
   function RightColumn({ topExtra = null, bottomExtra = null }) {
     return (
-      <div className="flex flex-col gap-4">
-        {/* Age selector */}
-        <div className="grid grid-cols-2 gap-4">
+      <div className="flex flex-col gap-3 sm:gap-4">
+        {/* Age selector - responsive */}
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           <button type="button" onClick={() => setAge("Children")} className={selectButton(age === "Children", errors.age && age === "")}>Children</button>
           <button type="button" onClick={() => setAge("Adult")} className={selectButton(age === "Adult", errors.age && age === "")}>Adult</button>
         </div>
 
-        {/* Level selector */}
-        <div className="grid grid-cols-6 gap-4">
+        {/* Level selector - responsive grid */}
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-4">
           {["A0", "A1", "A2", "B1", "B2", "C1"].map((l) => (
             <button key={l} type="button" onClick={() => setLevel(l)} className={levelButton(level === l, errors.level && level === "")}>{l}</button>
           ))}
@@ -285,8 +285,8 @@ export default function LessonForm({
         {/* Type-specific fields above images — aligns with left column content */}
         {topExtra}
 
-        {/* Image upload grid */}
-        <div className="grid grid-cols-2 grid-rows-2 gap-4">
+        {/* Image upload grid - responsive: 1 col on mobile, 2 cols on tablet+ */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {images.map((img, i) => (
             <div key={`${img.url}-${i}`} className={imageCard}>
               <img src={img.url} alt={`Lesson image ${i + 1}`} onClick={() => changeFile(i)} className={imagePreview} />
@@ -301,7 +301,7 @@ export default function LessonForm({
 
           {images.length < 4 && (
             <button type="button" onClick={openFilePicker} className={imageAddButton(errors.images)}>
-              <Plus size={120} className={plusIcon} />
+              <Plus size={80} sm:size={120} className={plusIcon} />
             </button>
           )}
         </div>
@@ -309,9 +309,9 @@ export default function LessonForm({
         {/* Type-specific fields below images */}
         {bottomExtra}
 
-        {/* Save and premium buttons */}
-        <div className="grid grid-cols-3 gap-4">
-          <button type="button" onClick={handleSubmit} disabled={isSaving} className={`${lessonSaveButton} col-span-2`}>
+        {/* Save and premium buttons - responsive layout */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          <button type="button" onClick={handleSubmit} disabled={isSaving} className={`${lessonSaveButton} sm:col-span-2`}>
             {isSaving
               ? mode === "edit" ? "Saving changes..." : "Saving..."
               : mode === "edit" ? "Save changes" : "Save"}
@@ -322,16 +322,16 @@ export default function LessonForm({
         </div>
 
         {errors.save && (
-          <p className="text-center text-lg text-red-500">Something went wrong while saving the lesson.</p>
+          <p className="text-center text-sm sm:text-lg text-red-500">Something went wrong while saving the lesson.</p>
         )}
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 sm:gap-6">
 
-      {/* ── Lesson type selector — sits on top, affects both columns ── */}
+      {/* Lesson type selector — sits on top, affects both columns */}
       <div className={lessonTypeGrid}>
         {LESSON_TYPES.map((type) => (
           <button
@@ -345,22 +345,23 @@ export default function LessonForm({
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-10">
+      {/* Main form grid - responsive: 1 col on mobile, 2 cols on tablet+ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
 
-        {/* ── Left column ── */}
-        <div>
+        {/* Left column */}
+        <div className="flex flex-col gap-3">
 
           {/* Title and topic are shared across all lesson types */}
           <input value={title} onChange={(e) => setTitle(e.target.value)} type="text" placeholder="Title" maxLength={30} className={formInput(errors.title)} />
           <input value={topic} onChange={(e) => setTopic(e.target.value)} type="text" placeholder="#" maxLength={15} className={formInput(errors.topic)} />
 
-          {/* ── Standard: full-height description ── */}
+          {/* Standard: full-height description */}
           {lessonType === "standard" && (
             <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" maxLength={600} rows={13} className={formTextarea(errors.description)} />
           )}
 
-          {/* ── TED Talk: description + discussion questions left
-               speaker / video URL / duration go RIGHT above images ── */}
+          {/* TED Talk: description + discussion questions left
+               speaker / video URL / duration go RIGHT above images */}
           {lessonType === "ted-talk" && (
             <div className="flex flex-col gap-3">
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" maxLength={600} rows={6} className={formTextarea(errors.description)} />
@@ -391,15 +392,15 @@ export default function LessonForm({
                 </div>
               ))}
               {discussionQuestions.length < 6 && (
-                <button type="button" onClick={() => setDiscussionQuestions((prev) => [...prev, ""])} className="rounded-xl bg-gray px-4 py-3 text-lg text-gray-600 hover:bg-lightblue/70 transition text-left">
+                <button type="button" onClick={() => setDiscussionQuestions((prev) => [...prev, ""])} className="rounded-xl bg-gray px-4 py-3 text-base sm:text-lg text-gray-600 hover:bg-lightblue/70 transition text-left">
                   + Add question
                 </button>
               )}
             </div>
           )}
 
-          {/* ── Book / Story: description + themes left
-               book title / author / story type go RIGHT below images ── */}
+          {/* Book / Story: description + themes left
+               book title / author / story type go RIGHT below images */}
           {lessonType === "book-story" && (
             <div className="flex flex-col gap-3">
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" maxLength={600} rows={8} className={formTextarea(errors.description)} />
@@ -430,22 +431,22 @@ export default function LessonForm({
                 </div>
               ))}
               {themes.length < 6 && (
-                <button type="button" onClick={() => setThemes((prev) => [...prev, ""])} className="rounded-xl bg-gray px-4 py-3 text-lg text-gray-600 hover:bg-lightblue/70 transition text-left">
+                <button type="button" onClick={() => setThemes((prev) => [...prev, ""])} className="rounded-xl bg-gray px-4 py-3 text-base sm:text-lg text-gray-600 hover:bg-lightblue/70 transition text-left">
                   + Add theme
                 </button>
               )}
             </div>
           )}
 
-          {/* ── Grammar: full-height description left
-               grammar topic / rule focus / exercises go RIGHT below images ── */}
+          {/* Grammar: full-height description left
+               grammar topic / rule focus / exercises go RIGHT below images */}
           {lessonType === "grammar" && (
             <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" maxLength={600} rows={12} className={formTextarea(errors.description)} />
           )}
 
         </div>
 
-        {/* ── Right column ── */}
+        {/* Right column */}
 
         {/* Standard — no extra fields */}
         {lessonType === "standard" && <RightColumn />}

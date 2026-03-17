@@ -31,17 +31,17 @@ export default function LessonDetailsLayout({
   const mainImg = images[safeIndex];
 
   return (
-    <div className="grid grid-cols-[1.25fr_1fr] gap-10">
+    <div className="grid grid-cols-1 md:grid-cols-[1.25fr_1fr] gap-6 md:gap-10">
 
-      {/* ── Left column: gallery ── */}
+      {/* ── Left column (mobile: top): gallery ── */}
       <div className="w-full">
-        <div className="bg-gray rounded-xl overflow-hidden h-[460px]">
+        <div className="bg-gray rounded-xl overflow-hidden h-[300px] sm:h-[400px] md:h-[460px]">
           {mainImg ? (
             <img src={mainImg} alt="lesson" className="w-full h-full object-cover" />
           ) : null}
         </div>
 
-        <div className="grid grid-cols-4 gap-6 mt-6">
+        <div className="grid grid-cols-4 gap-3 sm:gap-4 md:gap-6 mt-4 md:mt-6">
           {images.slice(0, 4).map((img, i) => (
             <button
               key={img}
@@ -58,27 +58,27 @@ export default function LessonDetailsLayout({
         </div>
       </div>
 
-      {/* ── Right column: title + meta + type-specific content + actions ── */}
+      {/* ── Right column (mobile: bottom): title + meta + type-specific content + actions ── */}
       <div className="relative pb-12 min-w-0">
 
         {/* Title row */}
         <div className="flex items-start gap-3 flex-wrap mb-2">
-          <h1 className="text-4xl font-medium break-words flex-1 min-w-0">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-medium break-words flex-1 min-w-0">
             {lesson.title}
           </h1>
 
           {lesson.isPremium && (
-            <span className="mt-1 rounded-lg bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-700">
+            <span className="mt-1 rounded-lg bg-yellow-100 px-2.5 py-1 sm:px-3 text-xs sm:text-sm font-medium text-yellow-700">
               Premium
             </span>
           )}
         </div>
 
         {/* Shared meta: age, level, topic, type badge */}
-        <div className="flex flex-wrap items-center gap-3 mt-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-3">
           <AgeBadge age={lesson.age} />
           <LevelBadge level={lesson.level} />
-          <span className="text-2xl font-medium">#{String(lesson.topic).toUpperCase()}</span>
+          <span className="text-lg sm:text-xl md:text-2xl font-medium">#{String(lesson.topic).toUpperCase()}</span>
           <LessonTypeBadge type={lesson.lessonType} />
         </div>
 
@@ -87,25 +87,25 @@ export default function LessonDetailsLayout({
           <button
             type="button"
             onClick={onBuyLesson}
-            className="mt-5 rounded-2xl bg-navy px-6 py-3 text-xl text-white transition-all duration-300 hover:opacity-95 active:scale-[0.99]"
+            className="mt-4 sm:mt-5 w-full sm:w-auto rounded-2xl bg-navy px-5 sm:px-6 py-2.5 sm:py-3 text-lg sm:text-xl text-white transition-all duration-300 hover:opacity-95 active:scale-[0.99]"
           >
             Buy lesson
           </button>
         )}
 
         {lesson.isPremium && isPurchased && (
-          <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-green-100 px-4 py-2 text-lg font-medium text-green-700">
+          <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-green-100 px-3 sm:px-4 py-1.5 sm:py-2 text-base sm:text-lg font-medium text-green-700">
             ✓ Purchased
           </div>
         )}
 
         {/* Type-specific content slot */}
-        <div className="mt-6">
+        <div className="mt-5 sm:mt-6">
           {children}
         </div>
 
         {/* Admin actions + favorite */}
-        <div className="mt-8 flex items-center justify-between gap-4">
+        <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className={pageActions}>
             {!loadingAdmin && isAdminUser && (
               <>
@@ -135,11 +135,11 @@ export default function LessonDetailsLayout({
               className="flex items-center gap-2"
             >
               <Bookmark
-                className={`w-6 h-6 transition ${
+                className={`w-5 h-5 sm:w-6 sm:h-6 transition ${
                   isFavorite ? "fill-navy text-navy" : "text-navy"
                 }`}
               />
-              <span className="text-xl">{favoriteCount}</span>
+              <span className="text-lg sm:text-xl">{favoriteCount}</span>
             </button>
           </div>
         </div>

@@ -5,6 +5,7 @@ import path from "path";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  base: "/LearnToTeach/",
   resolve: {
     // This configuration is used for resolving the paths of the imports,
     // it allows us to use absolute imports with the "@" alias instead of relative imports

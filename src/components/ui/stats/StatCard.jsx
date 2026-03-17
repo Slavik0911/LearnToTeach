@@ -4,7 +4,7 @@ import { Plus } from "lucide-react";
 // This component is used for displaying a card with a statistic
 export default function StatCard({ title, value, note, route, add, onClick, onContextMenu  }) {
 
-  "w-full h-36 sm:h-44 md:h-48 rounded-2xl bg-blue-400 transition transform hover:-translate-y-1 hover:shadow-md";
+   const base = "w-full h-36 sm:h-44 md:h-48 rounded-2xl bg-blue-400 transition transform hover:-translate-y-1 hover:shadow-md";
 
   if (add) {
     if (onClick) {

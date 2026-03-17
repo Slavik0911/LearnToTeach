@@ -31,7 +31,7 @@ export default function LessonBrowser({
   } = useLessonPaginator(collectionRef, sortField, extraConstraints);
 
   return (
-    <>
+    <div className="mx-auto ">
       <LessonFilters
         search={search}
         setSearch={setSearch}
@@ -41,15 +41,17 @@ export default function LessonBrowser({
         setLevel={setLevel}
       />
 
-      <div className="mt-8 space-y-8">
+      <div className="mt-6 space-y-6 md:space-y-8">
         <LessonGrid>
           {loading &&
-            Array.from({ length: 5 }).map((_, index) => (
+            Array.from({ length: 6 }).map((_, index) => (
               <LessonCardSkeleton key={index} />
             ))}
 
           {!loading && lessons.length === 0 && (
-            <p className="col-span-full text-xl opacity-60">{emptyMessage}</p>
+            <p className="col-span-full text-base opacity-60 text-center">
+              {emptyMessage}
+            </p>
           )}
 
           {!loading &&
@@ -83,6 +85,6 @@ export default function LessonBrowser({
           setPageIndex={setPageIndex}
         />
       </div>
-    </>
+    </div>
   );
 }

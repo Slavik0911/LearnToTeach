@@ -2,10 +2,10 @@ import SkeletonBox from "./SkeletonBox";
 
 export default function ProfileSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="mx-auto space-y-6">
       <SkeletonBox className="h-8 w-40" />
 
-      <div className="grid grid-cols-[1fr_1.35fr] gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.35fr] gap-6">
         {/* Left column */}
         <div className="space-y-6">
           {/* ProfileSidebar top card */}
@@ -62,7 +62,7 @@ export default function ProfileSkeleton() {
               <SkeletonBox className="h-8 w-8 rounded-lg" />
             </div>
 
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <SkeletonBox className="h-48 w-full rounded-2xl" />
               <SkeletonBox className="h-48 w-full rounded-2xl" />
               <SkeletonBox className="h-48 w-full rounded-2xl" />
@@ -70,13 +70,13 @@ export default function ProfileSkeleton() {
           </div>
 
           {/* Folders */}
-          <div className="rounded-2xl bg-gray-100 px-10 pb-10 pt-0">
+          <div className="rounded-2xl bg-gray-100 px-10 md:px-8 lg:px-10 pb-6 md:pb-10 pt-0">
             <div className="mb-6 flex items-center gap-2 pt-8">
               <SkeletonBox className="h-10 w-32" />
               <SkeletonBox className="h-8 w-8 rounded-lg" />
             </div>
 
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <SkeletonBox className="h-48 w-full rounded-2xl" />
               <SkeletonBox className="h-48 w-full rounded-2xl" />
               <SkeletonBox className="h-48 w-full rounded-2xl" />

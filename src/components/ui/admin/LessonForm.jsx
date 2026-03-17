@@ -421,7 +421,7 @@ export default function LessonForm({
 
               {/* Dynamic list of discussion questions — no heading, placeholder shows number */}
               {discussionQuestions.map((q, i) => (
-                <div key={i} className="flex gap-2">
+                <div key={i} className="flex gap-2 items-center">
                   <input
                     value={q}
                     onChange={(e) => {
@@ -431,13 +431,13 @@ export default function LessonForm({
                     }}
                     type="text"
                     placeholder={`Discussion question ${i + 1}`}
-                    className={formInput(false)}
+                    className="rounded-2xl border-2 border-transparent outline-none transition-all duration-300 bg-gray hover:bg-lightblue/20 focus:border-lightblue focus:bg-white p-5 w-full text-2xl"
                   />
                   {discussionQuestions.length > 1 && (
                     <button
                       type="button"
                       onClick={() => setDiscussionQuestions((prev) => prev.filter((_, idx) => idx !== i))}
-                      className="rounded-xl bg-gray p-1.5 text-gray-500 hover:bg-red-100 hover:text-red-600 transition"
+                      className="flex items-center justify-center rounded-xl bg-gray h-full px-4 text-gray-500 hover:bg-red-100 hover:text-red-600 transition"
                     >
                       <X size={16} />
                     </button>
@@ -459,8 +459,9 @@ export default function LessonForm({
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" maxLength={600} rows={8} className={formTextarea(errors.description)} />
 
               {/* Dynamic list of themes */}
+              {/* Dynamic list of themes */}
               {themes.map((theme, i) => (
-                <div key={i} className="flex gap-2">
+                <div key={i} className="flex gap-2 items-center">
                   <input
                     value={theme}
                     onChange={(e) => {
@@ -470,13 +471,13 @@ export default function LessonForm({
                     }}
                     type="text"
                     placeholder={`Theme ${i + 1}`}
-                    className={formInput(false)}
+                    className="rounded-2xl border-2 border-transparent outline-none transition-all duration-300 bg-gray hover:bg-lightblue/20 focus:border-lightblue focus:bg-white p-5 w-full text-2xl"
                   />
                   {themes.length > 1 && (
                     <button
                       type="button"
                       onClick={() => setThemes((prev) => prev.filter((_, idx) => idx !== i))}
-                      className="rounded-xl bg-gray p-1.5 text-gray-500 hover:bg-red-100 hover:text-red-600 transition"
+                      className="flex items-center justify-center rounded-xl bg-gray h-full px-4 text-gray-500 hover:bg-red-100 hover:text-red-600 transition"
                     >
                       <X size={16} />
                     </button>

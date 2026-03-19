@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getFunctions, connectFunctionsEmulator  } from "firebase/functions";
 
 // Firebase configuration, values are taken from environment variables for security reasons
 const firebaseConfig = {
@@ -16,4 +17,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
-export const db = getFirestore(app); 
+export const db = getFirestore(app);
+export const functions = getFunctions(app, "europe-west1");
+
+if (location.hostname === "localhost") {
+  connectFunctionsEmulator(functions, "127.0.0.1", 5001);
+}

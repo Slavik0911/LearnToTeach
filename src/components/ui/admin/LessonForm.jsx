@@ -3,6 +3,7 @@ import { doc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
 import { Trash2, Plus, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { uploadToBackend } from "@/services/uploadToBackend"; 
 import {
   formInput,
   formTextarea,
@@ -139,29 +140,6 @@ export default function LessonForm({
     setImages((prev) => prev.filter((_, i) => i !== index));
   }
 
-  // Upload a file to Cloudinary and return the secure URL
-  async function uploadToCloudinary(file) {
-    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-    const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", preset);
-
-    const res = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
-
-    if (!res.ok) throw new Error("Cloudinary upload failed");
-
-    const data = await res.json();
-    return data.secure_url;
-  }
-
   // Generate a URL-friendly slug from the lesson title
   function generateSlug(text) {
     return text
@@ -224,7 +202,7 @@ export default function LessonForm({
       const finalUrls = await Promise.all(
         images.map(async (img) => {
           if (img.file) {
-            return await uploadToCloudinary(img.file);
+            return await uploadToBackend(img.file);
           }
           return img.url;
         })

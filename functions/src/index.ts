@@ -1,4 +1,5 @@
 import { onRequest } from "firebase-functions/v2/https";
+export { uploadLessonPreview } from "./features/media/uploadLessonPreview";
 
 export const ping = onRequest(
   {

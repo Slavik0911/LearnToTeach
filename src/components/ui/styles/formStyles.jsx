@@ -162,9 +162,6 @@ export const imageCard =
 export const imagePreview =
   "h-full w-full cursor-pointer object-cover transition-transform duration-500 group-hover:scale-110";
 
-// Overlay shown on hover
-export const imageOverlay =
-  "pointer-events-none absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10";
 
 // Delete button on image
 export const imageDeleteBtn =

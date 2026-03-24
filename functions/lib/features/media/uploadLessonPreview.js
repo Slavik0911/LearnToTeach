@@ -8,6 +8,7 @@ cloudinary_1.v2.config({
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+// Upload lesson preview to Cloudinary
 exports.uploadLessonPreview = (0, https_1.onCall)({
     region: "europe-west1",
     timeoutSeconds: 60,

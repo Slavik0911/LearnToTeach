@@ -5,17 +5,18 @@ import LessonBrowser from "@/components/ui/lesson/LessonBrowser";
 import Breadcrumb from "@/components/ui/navigation/Breadcrumb";
 
 export default function LessonSearch() {
-  const lessonsRef = useMemo(() => collection(db, "lessons"), []);
+    const lessonsRef = useMemo(() => collection(db, "lessons"), []);
 
-  return (
-    <>
-      <Breadcrumb
-        items={[
-          { label: "Home", to: "/" },
-          { label: "Lesson search" },
-        ]}
-      />
-      <LessonBrowser collectionRef={lessonsRef} sortField="createdAt" from="lesson-search" />
-    </>
-  );
+    return (
+        <>
+            <Breadcrumb
+                items={[{ label: "Home", to: "/" }, { label: "Lesson search" }]}
+            />
+            <LessonBrowser
+                collectionRef={lessonsRef}
+                sortField="createdAt"
+                from="lesson-search"
+            />
+        </>
+    );
 }

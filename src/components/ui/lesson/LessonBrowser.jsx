@@ -10,81 +10,87 @@ import useLessonPaginator from "@/hooks/useLessonPaginator";
 // sortField      — field name to sort by (e.g. "createdAt" | "savedAt")
 // emptyMessage   — text shown when no lessons match the current filters
 export default function LessonBrowser({
-  collectionRef,
-  sortField,
-  emptyMessage = "No lessons found.",
-  selectedLessonIds = [],
-  onToggleLessonDelete,
-  from = "lessons",
-  folderId = null,
-  folderTitle = "",
-  extraConstraints = [],
+    collectionRef,
+    sortField,
+    emptyMessage = "No lessons found.",
+    selectedLessonIds = [],
+    onToggleLessonDelete,
+    from = "lessons",
+    folderId = null,
+    folderTitle = "",
+    extraConstraints = [],
 }) {
-  const {
-    age, setAge,
-    level, setLevel,
-    search, setSearch,
-    lessons,
-    loading,
-    pageIndex, setPageIndex,
-    isNext,
-  } = useLessonPaginator(collectionRef, sortField, extraConstraints);
+    const {
+        age,
+        setAge,
+        level,
+        setLevel,
+        search,
+        setSearch,
+        lessons,
+        loading,
+        pageIndex,
+        setPageIndex,
+        isNext,
+    } = useLessonPaginator(collectionRef, sortField, extraConstraints);
 
-  return (
-    <div className="mx-auto ">
-      <LessonFilters
-        search={search}
-        setSearch={setSearch}
-        age={age}
-        setAge={setAge}
-        level={level}
-        setLevel={setLevel}
-      />
+    return (
+        <div className="mx-auto ">
+            <LessonFilters
+                search={search}
+                setSearch={setSearch}
+                age={age}
+                setAge={setAge}
+                level={level}
+                setLevel={setLevel}
+            />
 
-      <div className="mt-6 space-y-6 md:space-y-8">
-        <LessonGrid>
-          {loading &&
-            Array.from({ length: 6 }).map((_, index) => (
-              <LessonCardSkeleton key={index} />
-            ))}
+            <div className="mt-6 space-y-6 md:space-y-8">
+                <LessonGrid>
+                    {loading &&
+                        Array.from({ length: 6 }).map((_, index) => (
+                            <LessonCardSkeleton key={index} />
+                        ))}
 
-          {!loading && lessons.length === 0 && (
-            <p className="col-span-full text-base opacity-60 text-center">
-              {emptyMessage}
-            </p>
-          )}
+                    {!loading && lessons.length === 0 && (
+                        <p className="col-span-full text-base opacity-60 text-center">
+                            {emptyMessage}
+                        </p>
+                    )}
 
-          {!loading &&
-            lessons.map((lesson) => (
-              <LessonCard
-                key={lesson.id}
-                slug={lesson.id}
-                level={lesson.level}
-                title={lesson.title}
-                description={lesson.description}
-                favoriteCount={lesson.favoriteCount}
-                isSelectedForDelete={selectedLessonIds.includes(lesson.id)}
-                onTrashClick={
-                  onToggleLessonDelete
-                    ? () => onToggleLessonDelete(lesson.id)
-                    : undefined
-                }
-                linkState={{
-                  from,
-                  folderId,
-                  folderTitle,
-                }}
-              />
-            ))}
-        </LessonGrid>
+                    {!loading &&
+                        lessons.map((lesson) => (
+                            <LessonCard
+                                key={lesson.id}
+                                slug={lesson.id}
+                                level={lesson.level}
+                                title={lesson.title}
+                                description={lesson.description}
+                                favoriteCount={lesson.favoriteCount}
+                                isSelectedForDelete={selectedLessonIds.includes(
+                                    lesson.id,
+                                )}
+                                onTrashClick={
+                                    onToggleLessonDelete
+                                        ? () => onToggleLessonDelete(lesson.id)
+                                        : undefined
+                                }
+                                linkState={{
+                                    from,
+                                    folderId,
+                                    folderTitle,
+                                }}
+                            />
+                        ))}
+                </LessonGrid>
 
-        <LessonPagination
-          loading={loading}
-          pageIndex={pageIndex}
-          isNext={isNext}
-          setPageIndex={setPageIndex}
-        />
-      </div>
-    </div>
-  );
+                <LessonPagination
+                    loading={loading}
+                    pageIndex={pageIndex}
+                    isNext={isNext}
+                    setPageIndex={setPageIndex}
+                />
+            </div>
+        </div>
+    );
 }

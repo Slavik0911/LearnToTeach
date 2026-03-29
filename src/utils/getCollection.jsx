@@ -7,7 +7,7 @@ import { db } from "@/firebase";
 // Example:
 //   const lessons = await getCollection("users", uid, "folders", folderId, "lessons");
 export async function getCollection(...pathSegments) {
-  const ref = collection(db, ...pathSegments);
-  const snap = await getDocs(ref);
-  return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const ref = collection(db, ...pathSegments);
+    const snap = await getDocs(ref);
+    return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 }

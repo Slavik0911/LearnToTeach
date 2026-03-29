@@ -1,34 +1,34 @@
 type GenerateLessonPreviewInput = {
-  title: string;
-  topic?: string;
-  description?: string;
-  aiVisualNotes?: string;
-  lessonType?: "standard" | "ted-talk" | "book-story" | "grammar";
+    title: string;
+    topic?: string;
+    description?: string;
+    aiVisualNotes?: string;
+    lessonType?: "standard" | "ted-talk" | "book-story" | "grammar";
 };
 
 const getVisualStyleByLessonType = (lessonType?: string) => {
-  switch (lessonType) {
-    case "grammar":
-      return "clean abstract educational illustration with simple visual learning elements";
-    case "ted-talk":
-      return "modern conceptual educational illustration with presentation-like visual structure";
-    case "book-story":
-      return "warm editorial-style educational illustration inspired by reading and storytelling";
-    default:
-      return "clean modern educational illustration";
-  }
+    switch (lessonType) {
+        case "grammar":
+            return "clean abstract educational illustration with simple visual learning elements";
+        case "ted-talk":
+            return "modern conceptual educational illustration with presentation-like visual structure";
+        case "book-story":
+            return "warm editorial-style educational illustration inspired by reading and storytelling";
+        default:
+            return "clean modern educational illustration";
+    }
 };
 
 // Builds prompt
 export const buildLessonImagePrompt = ({
-  title,
-  topic,
-  lessonType,
-  aiVisualNotes
+    title,
+    topic,
+    lessonType,
+    aiVisualNotes,
 }: GenerateLessonPreviewInput) => {
-  const style = getVisualStyleByLessonType(lessonType);
+    const style = getVisualStyleByLessonType(lessonType);
 
-  return `
+    return `
 Flat vector illustration for an educational English lesson platform.
 
 Topic: ${title}

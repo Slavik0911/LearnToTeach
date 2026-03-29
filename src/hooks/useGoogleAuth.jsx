@@ -29,22 +29,22 @@ export default function useGoogleAuth(redirectTo = "/Profile") {
             // Create user if not exists
             if (!snap.exists()) {
                 await setDoc(userRef, {
-                email: (cred.user.email || "").toLowerCase(),
-                name: cred.user.displayName || "",
-                role: "user",
-                plan: "free",
-                createdAt: serverTimestamp(),
+                    email: (cred.user.email || "").toLowerCase(),
+                    name: cred.user.displayName || "",
+                    role: "user",
+                    plan: "free",
+                    createdAt: serverTimestamp(),
                 });
             }
 
             // Navigate to profile
             navigate(redirectTo, { replace: true });
-            } catch (error) {
+        } catch (error) {
             console.log("GOOGLE SIGN-IN ERROR:", error);
             setErr(error.code || error.message || "google-sign-in-failed");
-            } finally {
+        } finally {
             setLoading(false);
-            }
+        }
     }
 
     return { signInWithGoogle, loading, err };

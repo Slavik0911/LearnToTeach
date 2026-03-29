@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import {
-  query,
-  getDocs,
-  orderBy,
-  limit,
-  startAfter,
-  where,
-  or,
-  and,
+    query,
+    getDocs,
+    orderBy,
+    limit,
+    startAfter,
+    where,
+    or,
+    and,
 } from "firebase/firestore";
 
 const PAGE_SIZE = 15;
@@ -17,7 +17,11 @@ const PAGE_SIZE = 15;
 // Accepts an optional extraConstraints array for additional Firestore query filters (e.g. date range).
 // Handles search, age and level filtering, and cursor-based pagination.
 // Returns lessons, loading state, pagination controls, and filter state.
-export default function useLessonPaginator(collectionRef, sortField, extraConstraints = []) {
+export default function useLessonPaginator(
+    collectionRef,
+    sortField,
+    extraConstraints = [],
+) {
     const [age, setAge] = useState("all");
     const [level, setLevel] = useState("all");
     const [lessons, setLessons] = useState([]);
@@ -52,99 +56,101 @@ export default function useLessonPaginator(collectionRef, sortField, extraConstr
         if (!collectionRef) return;
         setLoading(true);
         try {
-        const startCursor = starts[index]; // null for first page
+            const startCursor = starts[index]; // null for first page
 
-        const term = search.trim().toLowerCase().replace(/^#/, "");
+            const term = search.trim().toLowerCase().replace(/^#/, "");
 
-        // We build the equality filters for age and level, if the filter is "all" we don't add any filter for that field
-        // extraConstraints are added first (e.g. where("watchedAt", ">=", since24h) for recently watched)
-        const eqFilters = [
-            ...extraConstraints,
-        ];
-        if (age !== "all") eqFilters.push(where("age", "==", age));
-        if (level !== "all") eqFilters.push(where("level", "==", level));
+            // We build the equality filters for age and level, if the filter is "all" we don't add any filter for that field
+            // extraConstraints are added first (e.g. where("watchedAt", ">=", since24h) for recently watched)
+            const eqFilters = [...extraConstraints];
+            if (age !== "all") eqFilters.push(where("age", "==", age));
+            if (level !== "all") eqFilters.push(where("level", "==", level));
 
-        // We build the base query with the equality filters,
-        // if there is a search term we add the search filters for title and topic using the or and and functions to combine them
-        let base = [
-            collectionRef,
-            ...eqFilters,
-            orderBy(sortField, "desc"),
-            limit(PAGE_SIZE + 1),
-        ];
-
-        // If there is a search term, we add the search filters for title and topic using the or and and functions to combine them,
-        // we use the title_lc and topic_lc fields that are stored in lowercase to make the search case insensitive,
-        // we also use the range queries with the term and term + \uf8ff to get all the documents that start with the search term
-        if (term) {
-            base = [
-            collectionRef,
-            and(
+            // We build the base query with the equality filters,
+            // if there is a search term we add the search filters for title and topic using the or and and functions to combine them
+            let base = [
+                collectionRef,
                 ...eqFilters,
-                or(
-                and(
-                    where("title_lc", ">=", term),
-                    where("title_lc", "<", term + "\uf8ff")
-                ),
-                and(
-                    where("topic_lc", ">=", term),
-                    where("topic_lc", "<", term + "\uf8ff")
-                )
-                )
-            ),
-            orderBy(sortField, "desc"),
-
-            // We limit the results to PAGE_SIZE + 1 to check if there is a next page
-            limit(PAGE_SIZE + 1),
+                orderBy(sortField, "desc"),
+                limit(PAGE_SIZE + 1),
             ];
-        }
 
-        // If startCursor is not null, we add startAfter to the query to get the next page, otherwise we just get the first page
-        const q = startCursor
-            ? query(...base, startAfter(startCursor))
-            : query(...base);
+            // If there is a search term, we add the search filters for title and topic using the or and and functions to combine them,
+            // we use the title_lc and topic_lc fields that are stored in lowercase to make the search case insensitive,
+            // we also use the range queries with the term and term + \uf8ff to get all the documents that start with the search term
+            if (term) {
+                base = [
+                    collectionRef,
+                    and(
+                        ...eqFilters,
+                        or(
+                            and(
+                                where("title_lc", ">=", term),
+                                where("title_lc", "<", term + "\uf8ff"),
+                            ),
+                            and(
+                                where("topic_lc", ">=", term),
+                                where("topic_lc", "<", term + "\uf8ff"),
+                            ),
+                        ),
+                    ),
+                    orderBy(sortField, "desc"),
 
-        const snap = await getDocs(q);
+                    // We limit the results to PAGE_SIZE + 1 to check if there is a next page
+                    limit(PAGE_SIZE + 1),
+                ];
+            }
 
-        // We check if there are more documents than the page size to determine if there is a next page,
-        // we also slice the documents to get only the ones for the current page
-        const docs = snap.docs;
-        const isMore = docs.length > PAGE_SIZE;
-        const pageDocs = isMore ? docs.slice(0, PAGE_SIZE) : docs;
+            // If startCursor is not null, we add startAfter to the query to get the next page, otherwise we just get the first page
+            const q = startCursor
+                ? query(...base, startAfter(startCursor))
+                : query(...base);
 
-        // We transform the documents into a normal array of objects, where each object has an id and the data of the document
-        const items = pageDocs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-        }));
+            const snap = await getDocs(q);
 
-        // We set the lessons state with the loaded lessons and the isNext state with the value of isMore
-        setLessons(items);
-        setIsNext(isMore);
+            // We check if there are more documents than the page size to determine if there is a next page,
+            // we also slice the documents to get only the ones for the current page
+            const docs = snap.docs;
+            const isMore = docs.length > PAGE_SIZE;
+            const pageDocs = isMore ? docs.slice(0, PAGE_SIZE) : docs;
 
-        // If there is a next page, we save the last document of the current page as the start cursor for the next page in the pageStarts state,
-        // we also check if we already have a start cursor for the next page to avoid duplicates
-        if (isMore) {
-            const nextStartCursor = pageDocs[pageDocs.length - 1];
-            setPageStarts((prev) => {
-            if (prev[index + 1]) return prev;
-            const copy = [...prev];
-            copy[index + 1] = nextStartCursor;
-            return copy;
-            });
-        }
+            // We transform the documents into a normal array of objects, where each object has an id and the data of the document
+            const items = pageDocs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+
+            // We set the lessons state with the loaded lessons and the isNext state with the value of isMore
+            setLessons(items);
+            setIsNext(isMore);
+
+            // If there is a next page, we save the last document of the current page as the start cursor for the next page in the pageStarts state,
+            // we also check if we already have a start cursor for the next page to avoid duplicates
+            if (isMore) {
+                const nextStartCursor = pageDocs[pageDocs.length - 1];
+                setPageStarts((prev) => {
+                    if (prev[index + 1]) return prev;
+                    const copy = [...prev];
+                    copy[index + 1] = nextStartCursor;
+                    return copy;
+                });
+            }
         } finally {
-        setLoading(false);
+            setLoading(false);
         }
     }
 
-  return {
-    age, setAge,
-    level, setLevel,
-    search, setSearch,
-    lessons,
-    loading,
-    pageIndex, setPageIndex,
-    isNext,
-  };
+    return {
+        age,
+        setAge,
+        level,
+        setLevel,
+        search,
+        setSearch,
+        lessons,
+        loading,
+        pageIndex,
+        setPageIndex,
+        isNext,
+    };
 }

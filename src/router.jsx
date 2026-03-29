@@ -18,54 +18,53 @@ import VerifyEmail from "@/pages/auth/VerifyEmail";
 import RecentlyWatched from "@/pages/profile/RecentlyWatched";
 import Purchased from "@/pages/profile/Purchased";
 
-// This component is responsible for defining all the routes in the application and 
+// This component is responsible for defining all the routes in the application and
 // rendering the appropriate components based on the URL
 export default function Router() {
-  return (
-    <Routes>
-      {/* with Layout */}
-      <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/search" element={<LessonSearch />} />
-        <Route path="/lessons/:id" element={<LessonDetails />} />
-        <Route path="/favorite-lessons" element={<FavoriteLessons />} />
-        <Route path="/folders/:id" element={<FolderDetails />} />
-        <Route path="/recently-watched" element={<RecentlyWatched />} />
-        <Route path="/purchased" element={<Purchased />} />
+    return (
+        <Routes>
+            {/* with Layout */}
+            <Route element={<Layout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/search" element={<LessonSearch />} />
+                <Route path="/lessons/:id" element={<LessonDetails />} />
+                <Route path="/favorite-lessons" element={<FavoriteLessons />} />
+                <Route path="/folders/:id" element={<FolderDetails />} />
+                <Route path="/recently-watched" element={<RecentlyWatched />} />
+                <Route path="/purchased" element={<Purchased />} />
 
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/login" element={<LogIn />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/login" element={<LogIn />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
 
-        {/* protected admin route */}
-        <Route
-          path="/admin"
-          element={
-            <AdminGuard>
-              <Admin />
-            </AdminGuard>
-          }
-          
-        />
-        <Route
-          path="/addlesson"
-          element={
-            <AdminGuard>
-              <AddLesson />
-            </AdminGuard>
-          }
-        />
-        <Route
-          path="/editlesson/:id"
-          element={
-            <AdminGuard>
-              <EditLesson />
-            </AdminGuard>
-          }
-        />
-      </Route>
-    </Routes>
-  );
+                {/* protected admin route */}
+                <Route
+                    path="/admin"
+                    element={
+                        <AdminGuard>
+                            <Admin />
+                        </AdminGuard>
+                    }
+                />
+                <Route
+                    path="/addlesson"
+                    element={
+                        <AdminGuard>
+                            <AddLesson />
+                        </AdminGuard>
+                    }
+                />
+                <Route
+                    path="/editlesson/:id"
+                    element={
+                        <AdminGuard>
+                            <EditLesson />
+                        </AdminGuard>
+                    }
+                />
+            </Route>
+        </Routes>
+    );
 }

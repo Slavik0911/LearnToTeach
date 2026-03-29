@@ -5,17 +5,17 @@ import isAdmin from "@/utils/isAdmin";
 
 // Hook to check if user is admin
 export default function useAdmin() {
-  const [admin, setAdmin] = useState(false);
-  const [loadingAdmin, setLoadingAdmin] = useState(true);
-  
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setAdmin(isAdmin(user));
-      setLoadingAdmin(false);
-    });
+    const [admin, setAdmin] = useState(false);
+    const [loadingAdmin, setLoadingAdmin] = useState(true);
 
-    return () => unsubscribe();
-  }, []);
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setAdmin(isAdmin(user));
+            setLoadingAdmin(false);
+        });
 
-  return { isAdminUser: admin, loadingAdmin };
+        return () => unsubscribe();
+    }, []);
+
+    return { isAdminUser: admin, loadingAdmin };
 }

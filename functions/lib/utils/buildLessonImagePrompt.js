@@ -14,12 +14,7 @@ const getVisualStyleByLessonType = (lessonType) => {
     }
 };
 // Builds prompt
-const buildLessonImagePrompt = ({
-    title,
-    topic,
-    lessonType,
-    aiVisualNotes,
-}) => {
+const buildLessonImagePrompt = ({ title, topic, lessonType, aiVisualNotes, }) => {
     const style = getVisualStyleByLessonType(lessonType);
     return `
 Flat vector illustration for an educational English lesson platform.

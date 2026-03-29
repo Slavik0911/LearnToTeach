@@ -215,6 +215,16 @@ function LessonDetails() {
     if (notFound) return <div>Lesson not found</div>;
     if (!lesson) return null;
 
+    // Filter out the preview image from the gallery images
+    const galleryImages = (lesson.images || []).filter(
+        (img) => img !== lesson.previewImage,
+    );
+
+    const lessonForDetails = {
+        ...lesson,
+        images: galleryImages,
+    };
+
     let breadcrumbItems;
     // Determine breadcrumb items based on source
     if (from === "favorite-lessons") {
@@ -256,7 +266,7 @@ function LessonDetails() {
             <Breadcrumb items={breadcrumbItems} />
 
             <LessonDetailsLayout
-                lesson={lesson}
+                lesson={lessonForDetails}
                 isPurchased={isPurchased}
                 isFavorite={isFavorite}
                 favoriteCount={favoriteCount}
@@ -270,7 +280,7 @@ function LessonDetails() {
                 onDelete={() => setDeleteModalOpen(true)}
             >
                 {/* Type-specific content is rendered here based on lesson.lessonType */}
-                <LessonTypeRenderer lesson={lesson} />
+                <LessonTypeRenderer lesson={lessonForDetails} />
             </LessonDetailsLayout>
 
             <ConfirmModal

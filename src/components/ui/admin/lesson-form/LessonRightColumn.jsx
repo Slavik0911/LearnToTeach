@@ -1,4 +1,4 @@
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Star } from "lucide-react";
 import {
     formInput,
     selectButton,
@@ -27,6 +27,7 @@ export default function LessonRightColumn({
     mode,
     handleGeneratePreview,
     isGenerating,
+    setPreviewImage,
 }) {
     return (
         <div className="flex flex-col gap-3 sm:gap-4">
@@ -120,24 +121,54 @@ export default function LessonRightColumn({
 
             {/* Image upload grid - responsive: 1 col on mobile, 2 cols on tablet+ */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                {form.images.map((img, i) => (
-                    <div key={`${img.url}-${i}`} className={imageCard}>
-                        <img
-                            src={img.url}
-                            alt={`Lesson image ${i + 1}`}
-                            onClick={() => changeFile(i)}
-                            className={imagePreview}
-                        />
-                        <button
-                            type="button"
-                            onClick={() => deleteFile(i)}
-                            className={imageDeleteBtn}
-                            title="Delete"
+                {form.images.map((img, i) => {
+                    const isPreview = form.previewImage === img.url;
+
+                    return (
+                        <div
+                            key={`${img.url}-${i}`}
+                            className={`${imageCard} relative ${
+                                isPreview ? "ring-2 ring-yellow-400" : ""
+                            }`}
                         >
-                            <Trash2 size={18} />
-                        </button>
-                    </div>
-                ))}
+                            <img
+                                src={img.url}
+                                alt={`Lesson image ${i + 1}`}
+                                onClick={() => changeFile(i)}
+                                className={imagePreview}
+                            />
+
+                            <button
+                                type="button"
+                                onClick={() => setPreviewImage(img.url)}
+                                className={`absolute left-2 top-2 z-10 rounded-full p-2 transition ${
+                                    isPreview
+                                        ? "bg-yellow-400 text-white"
+                                        : "bg-white/90 text-gray-600 hover:bg-yellow-100 hover:text-yellow-600"
+                                }`}
+                                title={
+                                    isPreview
+                                        ? "Current preview image"
+                                        : "Set as preview"
+                                }
+                            >
+                                <Star
+                                    size={18}
+                                    className={isPreview ? "fill-current" : ""}
+                                />
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => deleteFile(i)}
+                                className={imageDeleteBtn}
+                                title="Delete"
+                            >
+                                <Trash2 size={18} />
+                            </button>
+                        </div>
+                    );
+                })}
 
                 <input
                     type="file"

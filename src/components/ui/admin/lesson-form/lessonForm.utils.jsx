@@ -10,7 +10,10 @@ export function createInitialFormState(initialData = null) {
         level: initialData?.level || "",
         isPremium: initialData?.isPremium || false,
         lessonType: initialData?.lessonType || "standard",
-        images: (initialData?.images || []).map((url) => ({ url })),
+        images: (initialData?.images || []).map((img) =>
+            typeof img === "string" ? { url: img } : img,
+        ),
+        previewImage: initialData?.previewImage || "",
         aiVisualNotes: initialData?.aiVisualNotes || "",
 
         // TED Talk
@@ -107,6 +110,7 @@ export function buildLessonData(form) {
         age: form.age,
         level: form.level,
         images: form.images,
+        previewImage: form.previewImage || form.images[0] || null,
         isPremium: form.isPremium,
         lessonType: form.lessonType,
         ...buildTypeFields(form),

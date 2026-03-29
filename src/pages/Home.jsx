@@ -99,6 +99,7 @@ function Home() {
                                 title={lesson.title}
                                 description={lesson.description}
                                 favoriteCount={lesson.favoriteCount}
+                                image={lesson.previewImage || lesson.images?.[0] || ""}
                             />
                         ))}
                     </LessonGrid>

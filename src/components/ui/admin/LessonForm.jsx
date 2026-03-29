@@ -62,6 +62,14 @@ export default function LessonForm({
         }));
     }
 
+    // Set the preview image URL
+    function setPreviewImage(url) {
+        setForm((prev) => ({
+            ...prev,
+            previewImage: url,
+        }));
+    }
+
     // Handle file selection and update the images state
     function handleFileChange(e) {
         const file = e.target.files[0];
@@ -71,17 +79,27 @@ export default function LessonForm({
 
         setForm((prev) => {
             if (editIndex !== null) {
+                const oldImage = prev.images[editIndex];
+                const updatedImages = prev.images.map((img, i) =>
+                    i === editIndex ? { file, url: imageUrl } : img,
+                );
+
                 return {
                     ...prev,
-                    images: prev.images.map((img, i) =>
-                        i === editIndex ? { file, url: imageUrl } : img,
-                    ),
+                    images: updatedImages,
+                    previewImage:
+                        prev.previewImage === oldImage?.url
+                            ? imageUrl
+                            : prev.previewImage,
                 };
             }
 
+            const updatedImages = [...prev.images, { file, url: imageUrl }];
+
             return {
                 ...prev,
-                images: [...prev.images, { file, url: imageUrl }],
+                images: updatedImages,
+                previewImage: prev.previewImage || imageUrl,
             };
         });
 
@@ -102,10 +120,19 @@ export default function LessonForm({
 
     // Delete an image from the images state based on its index
     function deleteFile(index) {
-        setForm((prev) => ({
-            ...prev,
-            images: prev.images.filter((_, i) => i !== index),
-        }));
+        setForm((prev) => {
+            const deletedImage = prev.images[index];
+            const updatedImages = prev.images.filter((_, i) => i !== index);
+
+            return {
+                ...prev,
+                images: updatedImages,
+                previewImage:
+                    prev.previewImage === deletedImage?.url
+                        ? updatedImages[0]?.url || ""
+                        : prev.previewImage,
+            };
+        });
     }
 
     const handleGeneratePreview = async () => {
@@ -125,10 +152,15 @@ export default function LessonForm({
                 aiVisualNotes: form.aiVisualNotes,
             });
 
-            setForm((prev) => ({
-                ...prev,
-                images: [...prev.images, { url: result.secureUrl }],
-            }));
+            setForm((prev) => {
+                const updatedImages = [...prev.images, { url: result.secureUrl }];
+
+                return {
+                    ...prev,
+                    images: updatedImages,
+                    previewImage: prev.previewImage || result.secureUrl,
+                };
+            });
         } catch (e) {
             console.error("AI GENERATION ERROR:", e);
         } finally {
@@ -159,9 +191,22 @@ export default function LessonForm({
                 }),
             );
 
+            let finalPreviewImage = form.previewImage || "";
+
+            const previewIndex = form.images.findIndex(
+                (img) => img.url === form.previewImage,
+            );
+
+            if (previewIndex !== -1) {
+                finalPreviewImage = finalUrls[previewIndex];
+            } else if (!finalPreviewImage) {
+                finalPreviewImage = finalUrls[0] || "";
+            }
+
             const lessonData = buildLessonData({
                 ...form,
                 images: finalUrls,
+                previewImage: finalPreviewImage,
             });
 
             // Update existing lesson
@@ -201,7 +246,6 @@ export default function LessonForm({
                 setField={setField}
             />
 
-            {/* Main form grid - responsive: 1 col on mobile, 2 cols on tablet+ */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
                 <LessonLeftColumn
                     form={form}
@@ -226,6 +270,7 @@ export default function LessonForm({
                     mode={mode}
                     handleGeneratePreview={handleGeneratePreview}
                     isGenerating={isGenerating}
+                    setPreviewImage={setPreviewImage}
                 />
             </div>
         </div>

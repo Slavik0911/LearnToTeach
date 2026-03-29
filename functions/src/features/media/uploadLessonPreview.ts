@@ -1,13 +1,6 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
-import { v2 as cloudinary } from "cloudinary";
+import { uploadLessonPreviewImage } from "../../services/cloudinary.service";
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
-// Upload lesson preview to Cloudinary
 export const uploadLessonPreview = onCall(
   {
     region: "europe-west1",
@@ -22,17 +15,19 @@ export const uploadLessonPreview = onCall(
     }
 
     try {
-      const result = await cloudinary.uploader.upload(fileBase64, {
-        folder: "learntoteach/lesson-previews",
-        resource_type: "image",
-      });
+      const result = await uploadLessonPreviewImage(fileBase64);
 
       return {
         secureUrl: result.secure_url,
         publicId: result.public_id,
       };
-    } catch (error) {
-      console.error(error);
+    } catch (error: unknown) {
+      console.error("uploadLessonPreview error:", error);
+
+      if (error instanceof Error) {
+        throw new HttpsError("internal", error.message);
+      }
+
       throw new HttpsError("internal", "Upload failed");
     }
   }

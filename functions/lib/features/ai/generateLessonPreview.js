@@ -9,6 +9,7 @@ exports.generateLessonPreview = (0, https_1.onCall)({
     region: "europe-west1",
     timeoutSeconds: 180,
     memory: "1GiB",
+    cors: ["https://slavik0911.github.io"],
 }, async (request) => {
     const { title, topic, description, lessonType, aiVisualNotes } = request.data || {};
     if (typeof title !== "string" || !title.trim()) {
@@ -31,6 +32,9 @@ exports.generateLessonPreview = (0, https_1.onCall)({
     }
     catch (error) {
         console.error("generateLessonPreview error:", error);
+        if (error instanceof Error) {
+            throw new https_1.HttpsError("internal", error.message);
+        }
         throw new https_1.HttpsError("internal", "Image generation failed");
     }
 });

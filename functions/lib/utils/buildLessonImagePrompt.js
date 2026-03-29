@@ -13,6 +13,7 @@ const getVisualStyleByLessonType = (lessonType) => {
             return "clean modern educational illustration";
     }
 };
+// Builds prompt
 const buildLessonImagePrompt = ({ title, topic, lessonType, aiVisualNotes }) => {
     const style = getVisualStyleByLessonType(lessonType);
     return `

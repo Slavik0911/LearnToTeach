@@ -178,7 +178,7 @@ export default function LessonForm({
         const slug = generateSlug(form.title);
 
         await setDoc(doc(db, "lessons", slug), {
-          ...payload,
+          ...lessonData,
           favoriteCount: 0,
           purchaseCount: 0,
           createdAt: serverTimestamp(),

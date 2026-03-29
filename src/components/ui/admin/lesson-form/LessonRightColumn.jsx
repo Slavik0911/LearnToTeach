@@ -9,6 +9,7 @@ import {
   imageAddButton,
   lessonSaveButton,
   lessonPremiumButton,
+  actionBtnPrimary
 } from "@/components/ui/styles/formStyles";
 import { LEVELS } from "./lessonForm.utils";
 
@@ -103,7 +104,7 @@ export default function LessonRightColumn({
         type="button"
         onClick={handleGeneratePreview}
         disabled={isGenerating}
-        className="rounded-2xl bg-blue-500 text-white p-4 text-lg hover:bg-blue-600 transition disabled:opacity-50"
+        className={actionBtnPrimary}
       >
         {isGenerating ? "Generating..." : "Generate AI preview"}
       </button>

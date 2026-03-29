@@ -32,9 +32,14 @@ export const generateLessonPreview = onCall(
         secureUrl: uploadResult.secure_url,
         publicId: uploadResult.public_id,
       };
-    } catch (error) {
-      console.error("generateLessonPreview error:", error);
-      throw new HttpsError("internal", "Image generation failed");
-    }
+    }catch (error: unknown) {
+  console.error("generateLessonPreview error:", error);
+
+  if (error instanceof Error) {
+    throw new HttpsError("internal", error.message);
+  }
+
+  throw new HttpsError("internal", "Image generation failed");
+}
   }
 );

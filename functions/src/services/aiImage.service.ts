@@ -1,6 +1,14 @@
 import axios from "axios";
 
-const LEONARDO_API_KEY = process.env.LEONARDO_API_KEY;
+const getLeonardoApiKey = () => {
+  const key = process.env.LEONARDO_API_KEY;
+
+  if (!key) {
+    throw new Error("Missing LEONARDO_API_KEY");
+  }
+
+  return key;
+};
 
 const LEONARDO_BASE_URL = "https://cloud.leonardo.ai/api/rest/v1";
 const FLUX_DEV_MODEL_ID = "b2614463-296c-462a-9586-aafdb8f00e36";
@@ -37,7 +45,7 @@ const createGeneration = async (prompt: string) => {
     {
       headers: {
         accept: "application/json",
-        authorization: `Bearer ${LEONARDO_API_KEY}`,
+        authorization: `Bearer ${getLeonardoApiKey()}`,
         "content-type": "application/json",
       },
     }
@@ -61,7 +69,7 @@ const waitForImageUrl = async (generationId: string) => {
       {
         headers: {
           accept: "application/json",
-          authorization: `Bearer ${LEONARDO_API_KEY}`,
+          authorization: `Bearer ${getLeonardoApiKey()}`,
         },
       }
     );
@@ -89,33 +97,30 @@ const imageUrlToBase64DataUrl = async (imageUrl: string) => {
     responseType: "arraybuffer",
   });
 
-  const contentType =
-    response.headers["content-type"] || "image/png";
-
+  const contentType = response.headers["content-type"] || "image/png";
   const base64 = Buffer.from(response.data).toString("base64");
 
   return `data:${contentType};base64,${base64}`;
 };
 
 export const generateLessonImageBase64 = async (prompt: string) => {
-  if (!LEONARDO_API_KEY) {
-    throw new Error("Missing LEONARDO_API_KEY");
-  }
-
   try {
     const generationId = await createGeneration(prompt);
     const imageUrl = await waitForImageUrl(generationId);
     return await imageUrlToBase64DataUrl(imageUrl);
-  } catch (error: any) {
-  console.error("Leonardo FLUX Dev raw error:", error);
+  } catch (error: unknown) {
+    console.error("Leonardo FLUX Dev raw error:", error);
 
-  if (error.response) {
-    console.error("Leonardo status:", error.response.status);
-    console.error("Leonardo data:", error.response.data);
-  } else {
-    console.error("Leonardo message:", error.message);
+    if (axios.isAxiosError(error)) {
+      console.error("Leonardo status:", error.response?.status);
+      console.error("Leonardo data:", error.response?.data);
+      console.error("Leonardo message:", error.message);
+    } else if (error instanceof Error) {
+      console.error("Leonardo message:", error.message);
+    } else {
+      console.error("Unknown Leonardo error");
+    }
+
+    throw new Error("AI image generation failed");
   }
-
-  throw new Error("AI image generation failed");
-}
 };

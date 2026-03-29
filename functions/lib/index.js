@@ -9,6 +9,6 @@ Object.defineProperty(exports, "generateLessonPreview", { enumerable: true, get:
 exports.ping = (0, https_1.onRequest)({
     region: "europe-west1",
 }, (_req, res) => {
-    res.status(200).send("pong");
+    res.status(200).send("pong 🚀");
 });
 //# sourceMappingURL=index.js.map

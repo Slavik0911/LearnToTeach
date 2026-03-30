@@ -42,6 +42,7 @@ export default function useRecentlyWatched(user, lesson) {
                         level: lesson.level ?? "",
                         favoriteCount: lesson.favoriteCount ?? 0,
                         watchedAt: serverTimestamp(),
+                        previewImage: lesson.previewImage || "",
                     },
                     { merge: true },
                 );

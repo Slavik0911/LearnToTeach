@@ -1,18 +1,37 @@
 import SkeletonBox from "./SkeletonBox";
 
+const lines = [
+    "w-full",
+    "w-[95%]",
+    "w-[90%]",
+    "w-[85%]",
+    "w-[92%]",
+    "w-[88%]",
+    "w-[80%]",
+    "w-[85%]",
+    "w-[75%]",
+    "w-[60%]",
+];
+
 export default function LessonCardSkeleton() {
     return (
-        <div className="rounded-3xl bg-blue-400 p-6 min-h-[420px]">
-            <div className="mb-6 flex items-center justify-between">
-                <SkeletonBox className="h-8 w-16 bg-blue-300" />
-                <SkeletonBox className="h-9 w-14 rounded-2xl bg-blue-300" />
+        <div className="block rounded-2xl overflow-hidden border border-gray-200 bg-white">
+            {/* IMAGE */}
+            <div className="relative w-full aspect-square p-4">
+                <SkeletonBox className="h-full w-full rounded-xl bg-gray-200" />
             </div>
 
-            <SkeletonBox className="mb-5 h-8 w-32 bg-blue-300" />
+            {/* CONTENT */}
+            <div className="px-4 pb-4 flex flex-col gap-2">
+                <SkeletonBox className="h-6 w-3/4 rounded-md bg-gray-200" />
 
-            <SkeletonBox className="h-4 w-full bg-blue-300" />
-            <SkeletonBox className="mt-3 h-4 w-4/5 bg-blue-300" />
-            <SkeletonBox className="mt-3 h-4 w-2/3 bg-blue-300" />
+                {lines.map((width, i) => (
+                    <SkeletonBox
+                        key={i}
+                        className={`h-4 ${width} rounded-md bg-gray-200`}
+                    />
+                ))}
+            </div>
         </div>
     );
 }

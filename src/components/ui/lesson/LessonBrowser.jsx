@@ -67,6 +67,8 @@ export default function LessonBrowser({
                                 title={lesson.title}
                                 description={lesson.description}
                                 favoriteCount={lesson.favoriteCount}
+                                // TODO: delete lesson.image after migration
+                                image={lesson.previewImage || lesson.image || ""}
                                 isSelectedForDelete={selectedLessonIds.includes(
                                     lesson.id,
                                 )}

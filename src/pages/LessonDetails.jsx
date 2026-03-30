@@ -138,8 +138,9 @@ function LessonDetails() {
                     age: lesson.age,
                     level: lesson.level,
                     savedAt: serverTimestamp(),
+                    previewImage: lesson.previewImage || "",
+                    favoriteCount: lesson.favoriteCount || 0,
                 });
-
                 await updateDoc(lessonRef, { favoriteCount: increment(1) });
                 await updateDoc(userRef, { favoriteCount: increment(1) });
 

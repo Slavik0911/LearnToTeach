@@ -33,6 +33,7 @@ export async function addLessonToFolder(uid, folderId, lesson) {
         favoriteCount: lesson.favoriteCount || 0,
         images: lesson.images || [],
         addedAt: serverTimestamp(),
+        previewImage: lesson.previewImage || "",
     });
 
     // increment(1) is an atomic Firestore operation — safe under concurrent writes

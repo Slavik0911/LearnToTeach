@@ -30,6 +30,7 @@ export async function purchaseLesson(uid, lessonId, lesson) {
         age: lesson.age,
         level: lesson.level,
         savedAt: serverTimestamp(),
+        previewImage: lesson.previewImage || "",
     });
 
     await updateDoc(userRef, {

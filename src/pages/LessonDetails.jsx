@@ -6,6 +6,7 @@ import LessonDetailsSkeleton from "@/components/ui/skeleton/LessonDetailsSkeleto
 import LessonDetailsLayout from "@/components/ui/lesson/details/LessonDetailsLayout";
 import LessonTypeRenderer from "@/components/ui/lesson/details/LessonTypeRenderer";
 import { purchaseLesson } from "@/lib/purchaseLesson";
+import useRequireAuth from "@/hooks/useRequireAuth";
 
 import { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
@@ -31,6 +32,7 @@ function LessonDetails() {
     const from = location.state?.from || "lessons-search";
     const folderId = location.state?.folderId || null;
     const folderTitle = location.state?.folderTitle || "";
+
     const [lesson, setLesson] = useState(null);
     const [loading, setLoading] = useState(true);
     const [notFound, setNotFound] = useState(false);
@@ -38,8 +40,10 @@ function LessonDetails() {
     const [isFavorite, setIsFavorite] = useState(false);
     const [favoriteCount, setFavoriteCount] = useState(0);
     const [isPurchased, setIsPurchased] = useState(false);
-    const { isAdminUser, loadingAdmin } = useAdmin();
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+    const { isAdminUser, loadingAdmin } = useAdmin();
+    const requireAuth = useRequireAuth();
 
     useRecentlyWatched(auth.currentUser, lesson);
 
@@ -49,22 +53,28 @@ function LessonDetails() {
             setLoading(true);
             setNotFound(false);
 
-            const ref = doc(db, "lessons", id);
-            const snap = await getDoc(ref);
+            try {
+                const ref = doc(db, "lessons", id);
+                const snap = await getDoc(ref);
 
-            // If the lesson does not exist, we set the notFound state to true and the lesson state to null, otherwise we set the lesson state with the loaded lesson and the currentIndex state to 0
-            if (!snap.exists()) {
+                // If the lesson does not exist, we set the notFound state to true and the lesson state to null, otherwise we set the lesson state with the loaded lesson and the currentIndex state to 0
+                if (!snap.exists()) {
+                    setNotFound(true);
+                    setLesson(null);
+                } else {
+                    const lessonData = { id: snap.id, ...snap.data() };
+                    setLesson(lessonData);
+                    setFavoriteCount(lessonData.favoriteCount || 0);
+                    setCurrentIndex(0);
+                }
+            } catch (e) {
+                console.log("LOAD LESSON ERROR:", e);
                 setNotFound(true);
                 setLesson(null);
-            } else {
-                const lessonData = { id: snap.id, ...snap.data() };
-                setLesson(lessonData);
-                setFavoriteCount(lessonData.favoriteCount || 0);
-                setCurrentIndex(0);
+            } finally {
+                // We set the loading state to false after the lesson is loaded
+                setLoading(false);
             }
-
-            // We set the loading state to false after the lesson is loaded
-            setLoading(false);
         }
 
         // We call the loadLesson function when the component is mounted and when the id from the url changes
@@ -98,17 +108,8 @@ function LessonDetails() {
     }, [id]);
 
     // We handle the toggle of the favorite status of the lesson
-    async function toggleFavorite(lessonId) {
+    async function toggleFavorite(lessonId, user) {
         try {
-            const user = auth.currentUser;
-
-            if (!user) {
-                console.log("User not logged in");
-                return;
-            }
-
-            // We check if the lesson is already in the user's favorites,
-            // if it is, we remove it from the favorites and decrement the saved count of the lesson,
             const favoriteRef = doc(
                 db,
                 "users",
@@ -120,10 +121,13 @@ function LessonDetails() {
             const userRef = doc(db, "users", user.uid);
             const favoriteSnap = await getDoc(favoriteRef);
 
+            // We check if the lesson is already in the user's favorites,
+            // if it is, we remove it from the favorites and decrement the saved count of the lesson,
             if (favoriteSnap.exists()) {
                 await deleteDoc(favoriteRef);
                 await updateDoc(lessonRef, { favoriteCount: increment(-1) });
                 await updateDoc(userRef, { favoriteCount: increment(-1) });
+
                 setIsFavorite(false);
                 setFavoriteCount((prev) => Math.max(prev - 1, 0));
                 console.log("Removed from favorites");
@@ -141,6 +145,7 @@ function LessonDetails() {
                     previewImage: lesson.previewImage || "",
                     favoriteCount: lesson.favoriteCount || 0,
                 });
+
                 await updateDoc(lessonRef, { favoriteCount: increment(1) });
                 await updateDoc(userRef, { favoriteCount: increment(1) });
 
@@ -151,6 +156,12 @@ function LessonDetails() {
         } catch (e) {
             console.log("FAVORITE ERROR:", e);
         }
+    }
+
+    function handleToggleFavorite() {
+        requireAuth((user) => {
+            toggleFavorite(lesson.id, user);
+        });
     }
 
     // Check if the lesson is purchased
@@ -183,19 +194,24 @@ function LessonDetails() {
     }, [id]);
 
     // Handle the purchase of the lesson
-    async function handleBuyLesson() {
-        try {
-            const uid = auth.currentUser?.uid;
-            if (!uid || !id || !lesson) return;
+    function handleBuyLesson() {
+        requireAuth(async (user) => {
+            try {
+                if (!lesson?.id) return;
 
-            const wasPurchased = await purchaseLesson(uid, id, lesson);
+                const wasPurchased = await purchaseLesson(
+                    user.uid,
+                    lesson.id,
+                    lesson,
+                );
 
-            if (wasPurchased) {
-                setIsPurchased(true);
+                if (wasPurchased) {
+                    setIsPurchased(true);
+                }
+            } catch (e) {
+                console.log("PURCHASE LESSON ERROR:", e);
             }
-        } catch (e) {
-            console.log("PURCHASE LESSON ERROR:", e);
-        }
+        });
     }
 
     // Handle the deletion of the lesson
@@ -213,6 +229,7 @@ function LessonDetails() {
     if (loading) {
         return <LessonDetailsSkeleton />;
     }
+
     if (notFound) return <div>Lesson not found</div>;
     if (!lesson) return null;
 
@@ -227,6 +244,7 @@ function LessonDetails() {
     };
 
     let breadcrumbItems;
+
     // Determine breadcrumb items based on source
     if (from === "favorite-lessons") {
         breadcrumbItems = [
@@ -259,7 +277,10 @@ function LessonDetails() {
             { label: lesson.title },
         ];
     } else {
-        breadcrumbItems = [{ label: "Home", to: "/" }, { label: lesson.title }];
+        breadcrumbItems = [
+            { label: "Home", to: "/" },
+            { label: lesson.title },
+        ];
     }
 
     return (
@@ -275,7 +296,7 @@ function LessonDetails() {
                 loadingAdmin={loadingAdmin}
                 currentIndex={currentIndex}
                 onSetIndex={setCurrentIndex}
-                onToggleFavorite={() => toggleFavorite(lesson.id)}
+                onToggleFavorite={handleToggleFavorite}
                 onBuyLesson={handleBuyLesson}
                 onEdit={() => navigate(`/editlesson/${lesson.id}`)}
                 onDelete={() => setDeleteModalOpen(true)}

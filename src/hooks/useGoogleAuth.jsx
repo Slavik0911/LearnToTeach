@@ -5,7 +5,7 @@ import { auth, db } from "@/firebase";
 import { useState } from "react";
 
 // Hook for Google authentication
-export default function useGoogleAuth(redirectTo = "/Profile") {
+export default function useGoogleAuth(redirectTo = "/") {
     const [loading, setLoading] = useState(false);
     const [err, setErr] = useState("");
     const navigate = useNavigate();
@@ -13,6 +13,7 @@ export default function useGoogleAuth(redirectTo = "/Profile") {
     // Sign in with Google
     async function signInWithGoogle() {
         if (loading) return;
+
         setErr("");
         setLoading(true);
 

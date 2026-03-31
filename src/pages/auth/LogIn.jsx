@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { auth } from "@/firebase";
 import useGoogleAuth from "@/hooks/useGoogleAuth";
@@ -21,14 +21,20 @@ export default function LogIn() {
     const [password, setPassword] = useState("");
     const [err, setErr] = useState("");
     const [loading, setLoading] = useState(false);
+
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // What page user came from before redirect to login
+    const from = location.state?.from || "/";
 
     // Google authentication
     const {
         signInWithGoogle,
         loading: googleLoading,
         err: googleErr,
-    } = useGoogleAuth("/Profile");
+    } = useGoogleAuth(from);
+
     const anyLoading = loading || googleLoading;
     const anyErr = err || googleErr;
 
@@ -37,13 +43,20 @@ export default function LogIn() {
         e.preventDefault();
         setErr("");
         setLoading(true);
+
         try {
             const cred = await signInWithEmailAndPassword(
                 auth,
                 email,
                 password,
             );
-            navigate(isAdmin(cred.user) ? "/Admin" : "/Profile");
+
+            if (isAdmin(cred.user)) {
+                navigate("/Admin", { replace: true });
+                return;
+            }
+
+            navigate(from, { replace: true });
         } catch (error) {
             setErr(error.code);
         } finally {
